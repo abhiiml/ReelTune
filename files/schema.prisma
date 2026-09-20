@@ -1,0 +1,215 @@
+// ReelTune — Prisma Schema
+// Database: PostgreSQL
+// Place at: apps/api/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────────────────────────
+// USER
+// ───────────────────────────────────────────────
+
+model User {
+  id              String   @id @default(uuid())
+  supabaseId      String   @unique @map("supabase_id") // links to Supabase Auth user
+  email           String   @unique
+  name            String?
+  avatarUrl       String?  @map("avatar_url")
+  preferences     Json     @default("{}")
+  onboardingDone  Boolean  @default(false) @map("onboarding_done")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  savedSongs        SavedSong[]
+  playlists         Playlist[]
+  connectedAccounts ConnectedAccount[]
+  syncJobs          SyncJob[]
+
+  @@map("users")
+}
+
+// ───────────────────────────────────────────────
+// SONG — the canonical internal entity.
+// NEVER make Spotify the source of truth.
+// Songs are global (shared across users), not per-user.
+// ───────────────────────────────────────────────
+
+model Song {
+  id          String   @id @default(uuid())
+  title       String
+  artists     String[] // Postgres array
+  album       String?
+  artworkUrl  String?  @map("artwork_url")
+  durationMs  Int?     @map("duration_ms")
+  releaseDate DateTime? @map("release_date")
+  genre       String?
+
+  // Cross-platform identifiers
+  isrc      String? @unique // industry standard — best dedup key
+  spotifyId String? @unique @map("spotify_id")
+  youtubeId String? @map("youtube_id")
+
+  metadata Json @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  savedBy       SavedSong[]
+  playlistSongs PlaylistSong[]
+
+  @@index([title])
+  @@index([spotifyId])
+  @@index([isrc])
+  @@map("songs")
+}
+
+// ───────────────────────────────────────────────
+// SAVED SONG — a user's personal library entry
+// ───────────────────────────────────────────────
+
+enum SaveSource {
+  INSTAGRAM
+  MANUAL_SEARCH
+  REEL_URL
+  AUDIO_RECOGNITION
+  SPOTIFY
+  YOUTUBE
+}
+
+model SavedSong {
+  id        String     @id @default(uuid())
+  userId    String     @map("user_id")
+  songId    String     @map("song_id")
+  source    SaveSource @default(MANUAL_SEARCH)
+  sourceUrl String?    @map("source_url") // original Reel URL if applicable
+  isFavorite Boolean   @default(false) @map("is_favorite")
+  confidence Float?    // recognition confidence 0.0–1.0, null if manual
+  savedAt   DateTime   @default(now()) @map("saved_at")
+  lastPlayedAt DateTime? @map("last_played_at")
+  metadata  Json       @default("{}")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId]) // duplicate detection enforced at DB level
+  @@index([userId, savedAt])
+  @@map("saved_songs")
+}
+
+// ───────────────────────────────────────────────
+// PLAYLIST — platform-independent by design.
+// Syncing creates a COPY on Spotify/YouTube.
+// ───────────────────────────────────────────────
+
+enum PlaylistPrivacy {
+  PRIVATE
+  PUBLIC
+}
+
+model Playlist {
+  id          String          @id @default(uuid())
+  userId      String          @map("user_id")
+  name        String
+  description String?
+  artworkUrl  String?         @map("artwork_url")
+  privacy     PlaylistPrivacy @default(PRIVATE)
+  isFavorite  Boolean         @default(false) @map("is_favorite")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songs    PlaylistSong[]
+  syncJobs SyncJob[]
+
+  @@index([userId])
+  @@map("playlists")
+}
+
+model PlaylistSong {
+  id         String   @id @default(uuid())
+  playlistId String   @map("playlist_id")
+  songId     String   @map("song_id")
+  position   Int
+  addedAt    DateTime @default(now()) @map("added_at")
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, songId])
+  @@index([playlistId, position])
+  @@map("playlist_songs")
+}
+
+// ───────────────────────────────────────────────
+// CONNECTED ACCOUNT — OAuth tokens.
+// NEVER send accessToken/refreshToken to the client.
+// Encrypt at rest.
+// ───────────────────────────────────────────────
+
+enum Provider {
+  SPOTIFY
+  YOUTUBE
+}
+
+model ConnectedAccount {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  provider       Provider
+  providerUserId String   @map("provider_user_id")
+  displayName    String?  @map("display_name") // e.g. Spotify username
+  accessToken    String   @map("access_token")  // ENCRYPTED
+  refreshToken   String?  @map("refresh_token") // ENCRYPTED
+  scopes         String[]
+  expiresAt      DateTime @map("expires_at")
+  connectedAt    DateTime @default(now()) @map("connected_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider]) // one account per provider per user
+  @@map("connected_accounts")
+}
+
+// ───────────────────────────────────────────────
+// SYNC JOB — tracks BullMQ background sync jobs
+// ───────────────────────────────────────────────
+
+enum SyncStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model SyncJob {
+  id         String     @id @default(uuid())
+  userId     String     @map("user_id")
+  playlistId String     @map("playlist_id")
+  provider   Provider
+  status     SyncStatus @default(QUEUED)
+
+  totalSongs       Int @default(0) @map("total_songs")
+  matchedCount     Int @default(0) @map("matched_count")
+  skippedCount     Int @default(0) @map("skipped_count")
+  unavailableCount Int @default(0) @map("unavailable_count")
+
+  externalPlaylistId  String? @map("external_playlist_id")  // Spotify/YouTube playlist ID
+  externalPlaylistUrl String? @map("external_playlist_url")
+
+  results   Json      @default("[]") // per-song results for the Sync Result screen
+  error     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("sync_jobs")
+}

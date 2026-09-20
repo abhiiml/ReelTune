@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Theme';
+import type { Song } from '@reeltune/types';
 
 export default function HomeScreen() {
+  const _testSong: Song | null = null;
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ReelTune</Text>

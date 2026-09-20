@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service.js';
+import type { Song } from '@reeltune/types';
 
 @Controller()
 export class AppController {
@@ -8,5 +9,10 @@ export class AppController {
   @Get('health')
   getHealth(): { status: string } {
     return { status: 'ok' };
+  }
+
+  @Get('test-types')
+  getTestTypes(): Song[] {
+    return [];
   }
 }

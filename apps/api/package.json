@@ -34,6 +34,7 @@
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "8.0.0-rc.11",
     "@reeltune/types": "workspace:*",
+    "@supabase/supabase-js": "^2.116.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^18.0.1",

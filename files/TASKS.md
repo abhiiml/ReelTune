@@ -64,18 +64,18 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 - ✅ Done when: Register → login → call /me returns user object
 
 ### TASK-102: Mobile Auth Screens
-- [ ] Build Login screen (email + Google sign-in button)
-- [ ] Build Register screen
-- [ ] Implement Supabase auth in mobile using `@supabase/supabase-js`
-- [ ] Store session in Zustand + persist with SecureStore
-- [ ] Redirect logged-in users to Home; unauthenticated to Login
-- [ ] Add "Forgot password" flow (Supabase handles email)
+- [x] Build Login screen (email + Google sign-in button)
+- [x] Build Register screen
+- [x] Implement Supabase auth in mobile using `@supabase/supabase-js`
+- [x] Store session in Zustand + persist with SecureStore
+- [x] Redirect logged-in users to Home; unauthenticated to Login
+- [x] Add "Forgot password" flow (Supabase handles email)
 - ✅ Done when: New user can register, close app, reopen, and be logged in automatically
 
 ### TASK-103: User Profile Basics
-- [ ] `GET /api/v1/users/me` — returns user profile
-- [ ] Profile screen shows name, email, avatar placeholder
-- [ ] Logout button clears Supabase session and Zustand state
+- [x] `GET /api/v1/users/me` — returns user profile
+- [x] Profile screen shows name, email, avatar placeholder
+- [x] Logout button clears Supabase session and Zustand state
 - ✅ Done when: Profile screen shows user data and logout works
 
 ---

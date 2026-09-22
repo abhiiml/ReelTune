@@ -92,10 +92,10 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 - ✅ Done when: `GET /api/v1/songs/search?q=blinding+lights` returns structured song results
 
 ### TASK-202: Search Screen (Mobile)
-- [ ] Build Search screen with search bar
-- [ ] Hook to `/api/v1/songs/search` via TanStack Query with debounce (300ms)
-- [ ] Display results as SongRow list items (artwork, title, artist)
-- [ ] Loading state (skeleton rows) + empty state + error state
+- [x] Build Search screen with search bar
+- [x] Hook to `/api/v1/songs/search` via TanStack Query with debounce (300ms)
+- [x] Display results as SongRow list items (artwork, title, artist)
+- [x] Loading state (skeleton rows) + empty state + error state
 - ✅ Done when: User can type "Blinding Lights" and see The Weeknd's track with album art
 
 ### TASK-203: Song Details Screen

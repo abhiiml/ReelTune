@@ -1,18 +1,14 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Global, Module } from '@nestjs/common';
-import { db } from './db.js';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  public readonly db = db;
-
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
-    // Connection is lazily established by default in Prisma 8.
-    // We can perform a dummy query to ensure it's connected at startup.
-    // await this.db.orm.public.User.findFirst();
+    await this.$connect();
   }
 
   async onModuleDestroy() {
-    // Prisma 8 RC connection teardown (if applicable)
+    await this.$disconnect();
   }
 }
 

@@ -16,8 +16,12 @@ import {
 import { Colors } from '../constants/Colors';
 import { useAuthStore } from '../store/useAuthStore';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 // Keep splash visible while loading
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -64,13 +68,15 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.bgPrimary }}>
-      <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <View style={{ flex: 1, backgroundColor: Colors.bgPrimary }}>
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </View>
+    </QueryClientProvider>
   );
 }

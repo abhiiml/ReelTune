@@ -27,9 +27,15 @@
   - `GET /api/v1/auth/me` fulfills the backend requirement for getting the user profile
   - Profile screen fetches and displays name, email, and avatar placeholder
   - Logout button properly triggers `signOut` in `useAuthStore` clearing session
+- ✅ **TASK-201: Spotify API Integration (Metadata Only)**
+  - Added Spotify credential placeholders to `apps/api/.env`
+  - Created `SpotifyModule` with Client Credentials flow for auth
+  - Implemented `GET /api/v1/songs/search?q=` returning canonical `Song` objects
+  - Used `pg` to securely upsert searched songs into local PostgreSQL database
+
 
 ## In Progress 🚧
-- 🚧 **TASK-201: Spotify API Integration (Metadata Only)** — Planning phase
+- 🚧 **TASK-202: Search Screen (Mobile)** — Planning phase
 
 ## Decisions Made (Not in SKILLS.md)
 - **NativeWind v4 Babel Config**: Removed `nativewind/babel` from `babel.config.js` as NativeWind v4 relies entirely on the Metro bundler (`withNativeWind`).
@@ -47,8 +53,8 @@
 - **Supabase ANON_KEY in mobile**: The mobile app uses `@supabase/supabase-js` directly with the anon key. This is fine for client auth (RLS policies protect data). Never use the service role key in mobile.
 
 ## Exact Next Step
-**TASK-201 — Spotify API Integration:**
-- Register ReelTune app on Spotify Developer Dashboard
-- Add Spotify credentials to `.env`
-- Create `SpotifyModule` in NestJS with Client Credentials flow
-- Implement `GET /api/v1/songs/search?q=`
+**TASK-202 — Search Screen (Mobile):**
+- Build Search screen with search bar in `apps/mobile`
+- Hook to `/api/v1/songs/search` via TanStack Query with debounce (300ms)
+- Display results as SongRow list items (artwork, title, artist)
+- Loading state (skeleton rows) + empty state + error state

@@ -69,7 +69,7 @@ export class AuthController {
 
   @UseGuards(SupabaseAuthGuard)
   @Get('me')
-  async getMe(@Req() req: any) {
+  async getMe(@Req() req: { user: { id: string } }) {
     const supabaseUser = req.user;
 
     const user = await this.prismaService.user.findUnique({

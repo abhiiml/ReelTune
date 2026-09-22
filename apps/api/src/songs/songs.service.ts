@@ -59,4 +59,74 @@ export class SongsService {
       metadata: (song.metadata as Record<string, unknown>) ?? {},
     }));
   }
+
+  async getById(id: string): Promise<Song | null> {
+    const song = await this.prisma.song.findUnique({
+      where: { id },
+    });
+
+    if (!song) return null;
+
+    return {
+      id: song.id,
+      title: song.title,
+      artists: song.artists,
+      album: song.album,
+      artwork: song.artwork,
+      duration: song.duration,
+      isrc: song.isrc,
+      spotifyId: song.spotifyId,
+      youtubeId: song.youtubeId,
+      metadata: (song.metadata as Record<string, unknown>) ?? {},
+    };
+  }
+  async saveSong(userId: string, songId: string) {
+    // Check if it's already saved
+    const existing = await this.prisma.savedSong.findUnique({
+      where: {
+        userId_songId: {
+          userId,
+          songId,
+        },
+      },
+    });
+
+    if (existing) {
+      // Per spec: return { alreadySaved: true, playlists: [...] }
+      // Playlists feature is Phase 4, we'll return an empty array for now.
+      return { alreadySaved: true, playlists: [] };
+    }
+
+    const savedSong = await this.prisma.savedSong.create({
+      data: {
+        userId,
+        songId,
+      },
+      include: {
+        song: true,
+      },
+    });
+
+    return {
+      alreadySaved: false,
+      savedSong,
+    };
+  }
+
+  async unsaveSong(userId: string, songId: string) {
+    try {
+      await this.prisma.savedSong.delete({
+        where: {
+          userId_songId: {
+            userId,
+            songId,
+          },
+        },
+      });
+      return { success: true };
+    } catch {
+      // If it doesn't exist, prisma throws P2025. We can safely ignore or return false.
+      return { success: false, message: 'Song not in library' };
+    }
+  }
 }

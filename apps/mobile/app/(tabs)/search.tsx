@@ -1,15 +1,17 @@
 import { View, Text, StyleSheet, TextInput, FlatList, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Search, XCircle } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { useSearchSongs } from '../../hooks/useSearchSongs';
 import { useDebounce } from '../../hooks/useDebounce';
 import { SongRow } from '../../components/ui/SongRow';
-import { Song } from '@reeltune/types';
+import type { Song } from '@reeltune/types';
 
 export default function SearchScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
@@ -86,7 +88,7 @@ export default function SearchScreen() {
         renderItem={({ item }) => (
           <SongRow 
             song={item} 
-            onPress={() => console.log('Navigate to Song Details', item.id)}
+            onPress={() => router.push(`/song/${item.id}` as never)}
             onMenuPress={() => console.log('Open Song Menu', item.id)}
           />
         )}

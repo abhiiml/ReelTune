@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable, ViewStyle, StyleProp } from 'react-native';
-import { Song } from '@reeltune/types';
+import type { ViewStyle, StyleProp } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import type { Song } from '@reeltune/types';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { MoreVertical } from 'lucide-react-native';

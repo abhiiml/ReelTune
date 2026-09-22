@@ -1,11 +1,5 @@
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Song } from '@reeltune/types';
-
-interface SpotifyTokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-}
 
 @Injectable()
 export class SpotifyService {
@@ -60,15 +54,23 @@ export class SpotifyService {
     return results.map((track) => this.mapToInternalSong(track));
   }
 
-  private mapToInternalSong(spotifyTrack: any): Partial<Song> {
+  private mapToInternalSong(spotifyTrack: Record<string, unknown>): Partial<Song> {
+    const track = spotifyTrack as {
+      name: string;
+      artists: { name: string }[];
+      album: { name: string; images: { url: string }[] };
+      duration_ms: number;
+      external_ids: { isrc?: string };
+      id: string;
+    };
     return {
-      title: spotifyTrack.name,
-      artists: spotifyTrack.artists.map((a: any) => a.name),
-      album: spotifyTrack.album.name,
-      artwork: spotifyTrack.album.images?.[0]?.url || '',
-      duration: spotifyTrack.duration_ms,
-      isrc: spotifyTrack.external_ids?.isrc || null,
-      spotifyId: spotifyTrack.id,
+      title: track.name,
+      artists: track.artists.map((a) => a.name),
+      album: track.album.name,
+      artwork: track.album.images?.[0]?.url || '',
+      duration: track.duration_ms,
+      isrc: track.external_ids?.isrc || null,
+      spotifyId: track.id,
       youtubeId: null,
       metadata: spotifyTrack,
     };

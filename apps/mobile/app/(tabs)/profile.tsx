@@ -7,7 +7,7 @@ import { LogOut, User as UserIcon } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const { session, signOut } = useAuthStore();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<{ displayName?: string; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

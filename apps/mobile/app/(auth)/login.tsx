@@ -53,7 +53,7 @@ export default function LoginScreen() {
       await signIn(email.trim().toLowerCase(), password);
       // onAuthStateChange in the store will update session
       // _layout.tsx redirect guard will send user to /(tabs)
-    } catch (e: any) {
+    } catch {
       // Error is already stored in useAuthStore; show inline
     }
   };

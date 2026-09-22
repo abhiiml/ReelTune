@@ -34,10 +34,52 @@
   - Used `pg` to securely upsert searched songs into local PostgreSQL database
 - ✅ **TASK-202: Search Screen (Mobile)**
   - Built Search UI with debounce and TanStack Query integration
+- ✅ **TASK-203: Song Details Screen**
+  - Added `GET /api/v1/songs/:id` endpoint
+  - Built SongDetails screen (`/song/[id]`) with artwork, metadata, and deep links to Spotify/YouTube
+  - Fixed mobile navigation and styling issues
 
+- ✅ **TASK-301: Save Song API**
+  - Built `POST /api/v1/songs/save` and `DELETE /api/v1/songs/:id/save`
+  - Created `GET /api/v1/users/me/songs` in new `UsersController`
+  - Added duplicate detection logic
+- ✅ **TASK-302: Save Song UI (Mobile)**
+  - Added `useSaveSong` hook for React Query mutations
+  - Connected "Save" button in SongDetails
+  - Implemented Toast notification for success
+  - Built duplicate detection Modal
+- ✅ **TASK-303: Library Screen**
+  - Built Library tab UI
+  - Integrated `useSavedSongs` React Query hook with pull-to-refresh
+  - Implemented sort by Recent, Title, and Artist
+  - Built beautiful empty state
+  - Built Bottom Sheet menu for removing songs and external playback
+- ✅ **TASK-401: Playlist API**
+  - Built full CRUD logic for playlists (`POST`, `GET`, `PATCH`, `DELETE`)
+  - Added endpoints to add/remove/reorder songs inside playlists
+- ✅ **TASK-402: Create Playlist Screen**
+  - Created `useCreatePlaylist` React Query mutation
+  - Built `CreatePlaylistScreen` with Name, Description, and Privacy inputs
+  - Added validation and error handling
+- ✅ **TASK-403: Playlist List Screen**
+  - Refactored `LibraryScreen` to include Top Tabs ("Songs" & "Playlists")
+  - Built `PlaylistCard` component showing grid layout
+  - Handled "+ New Playlist" button and Empty states
+  - Integrated `usePlaylists` query
+- ✅ **TASK-404: Playlist Details Screen**
+  - Built `PlaylistDetailsScreen` with songs list and playlist metadata
+  - Added bottom sheet actions for removing and moving songs Up/Down
+  - Built reusable `AddToPlaylistModal` component
+  - Wired up "Add to Playlist" from Library and Song Details screens
 
 ## In Progress 🚧
-- 🚧 **TASK-203: Song Details Screen** — Planning phase
+- ✅ **TASK-501: Spotify OAuth (User Account)**
+  - Built `IntegrationsModule`, `IntegrationsController`, and `IntegrationsService`
+  - Created `/api/v1/integrations/spotify/connect` endpoint to generate OAuth authorization URLs
+  - Created `/api/v1/integrations/spotify/callback` endpoint to handle token exchanges
+  - Stored tokens securely in the `ConnectedAccount` Prisma model
+  - Added `/api/v1/integrations` to fetch connected services
+- 🚧 **TASK-502: Spotify Connect Screen (Mobile)** — Awaiting implementation
 
 ## Decisions Made (Not in SKILLS.md)
 - **NativeWind v4 Babel Config**: Removed `nativewind/babel` from `babel.config.js` as NativeWind v4 relies entirely on the Metro bundler (`withNativeWind`).
@@ -57,8 +99,8 @@
 - **Supabase ANON_KEY in mobile**: The mobile app uses `@supabase/supabase-js` directly with the anon key. This is fine for client auth (RLS policies protect data). Never use the service role key in mobile.
 
 ## Exact Next Step
-**TASK-202 — Search Screen (Mobile):**
-- Build Search screen with search bar in `apps/mobile`
-- Hook to `/api/v1/songs/search` via TanStack Query with debounce (300ms)
-- Display results as SongRow list items (artwork, title, artist)
-- Loading state (skeleton rows) + empty state + error state
+**TASK-502 — Spotify Connect Screen (Mobile):**
+- Build Spotify Connection screen
+- Open OAuth URL via expo-web-browser
+- Handle deep link callback
+- Show connected state in UI

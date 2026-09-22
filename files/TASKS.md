@@ -99,11 +99,11 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 - ✅ Done when: User can type "Blinding Lights" and see The Weeknd's track with album art
 
 ### TASK-203: Song Details Screen
-- [ ] `GET /api/v1/songs/:id` — returns full song with metadata
-- [ ] Build SongDetails screen: artwork (large), title, artist, album, duration
-- [ ] "Play on Spotify" button (deep links to Spotify app)
-- [ ] "Play on YouTube" button (opens YouTube link)
-- [ ] Save button (stub for now)
+- [x] `GET /api/v1/songs/:id` — returns full song with metadata
+- [x] Build SongDetails screen: artwork (large), title, artist, album, duration
+- [x] "Play on Spotify" button (deep links to Spotify app)
+- [x] "Play on YouTube" button (opens YouTube link)
+- [x] Save button (stub for now)
 - ✅ Done when: Tapping a search result opens a details screen with all metadata
 
 ---
@@ -112,26 +112,26 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: Users can save songs and view their personal library.
 
 ### TASK-301: Save Song API
-- [ ] `POST /api/v1/songs/save` — saves a song to user's library (creates SavedSong record)
-- [ ] Duplicate detection: if song already saved, return `{ alreadySaved: true, playlists: [...] }` instead of saving again
-- [ ] `DELETE /api/v1/songs/:id/save` — removes song from library
-- [ ] `GET /api/v1/users/me/songs` — returns user's saved songs (paginated, sortable)
+- [x] `POST /api/v1/songs/save` — saves a song to user's library (creates SavedSong record)
+- [x] Duplicate detection: if song already saved, return `{ alreadySaved: true, playlists: [...] }` instead of saving again
+- [x] `DELETE /api/v1/songs/:id/save` — removes song from library
+- [x] `GET /api/v1/users/me/songs` — returns user's saved songs (paginated, sortable)
 - ✅ Done when: Save → fetch library shows the song; save again returns duplicate warning
 
 ### TASK-302: Save Song UI (Mobile)
-- [ ] Add Save button to SongDetails screen (calls save API)
-- [ ] Show Toast on success: "Song saved!" with playlist name
-- [ ] Show duplicate modal: "Already saved — add to another playlist?" with playlist list
-- [ ] Optimistic update: button turns filled/active immediately
+- [x] Add Save button to SongDetails screen (calls save API)
+- [x] Show Toast on success: "Song saved!" with playlist name
+- [x] Show duplicate modal: "Already saved — add to another playlist?" with playlist list
+- [x] Optimistic update: button turns filled/active immediately
 - ✅ Done when: User can save a song from search results in ≤ 3 taps
 
 ### TASK-303: Library Screen
-- [ ] Build Library screen with saved songs list
-- [ ] SongRow component with: artwork, title, artist, heart icon, ⋮ menu
-- [ ] ⋮ menu actions: Add to Playlist, Favorite, Remove, Open Spotify, Open YouTube
-- [ ] Sort options: Recently Saved, Song Name, Artist
-- [ ] Empty state: "No songs yet — discover something!"
-- [ ] Pull-to-refresh
+- [x] Build Library screen with saved songs list
+- [x] SongRow component with: artwork, title, artist, heart icon, ⋮ menu
+- [x] ⋮ menu actions: Add to Playlist, Favorite, Remove, Open Spotify, Open YouTube
+- [x] Sort options: Recently Saved, Song Name, Artist
+- [x] Empty state: "No songs yet — discover something!"
+- [x] Pull-to-refresh
 - ✅ Done when: Saved songs appear in library and can be removed
 
 ---
@@ -140,34 +140,34 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: Users can create playlists and add/remove/reorder songs.
 
 ### TASK-401: Playlist API
-- [ ] `POST /api/v1/playlists` — create playlist (name, description, privacy)
-- [ ] `GET /api/v1/playlists` — list user's playlists
-- [ ] `GET /api/v1/playlists/:id` — get playlist with songs
-- [ ] `PATCH /api/v1/playlists/:id` — rename, update description, toggle privacy
-- [ ] `DELETE /api/v1/playlists/:id` — delete playlist
-- [ ] `POST /api/v1/playlists/:id/songs` — add song
-- [ ] `DELETE /api/v1/playlists/:id/songs/:songId` — remove song
-- [ ] `PATCH /api/v1/playlists/:id/reorder` — update song positions
+- [x] `POST /api/v1/playlists` — create playlist (name, description, privacy)
+- [x] `GET /api/v1/playlists` — list user's playlists
+- [x] `GET /api/v1/playlists/:id` — get playlist with songs
+- [x] `PATCH /api/v1/playlists/:id` — rename, update description, toggle privacy
+- [x] `DELETE /api/v1/playlists/:id` — delete playlist
+- [x] `POST /api/v1/playlists/:id/songs` — add song
+- [x] `DELETE /api/v1/playlists/:id/songs/:songId` — remove song
+- [x] `PATCH /api/v1/playlists/:id/reorder` — update song positions
 - ✅ Done when: Full CRUD works via Postman/Thunder Client
 
 ### TASK-402: Create Playlist Screen
-- [ ] Build Create Playlist modal/screen (name field, description, privacy toggle)
-- [ ] Validate: name required, max 50 chars
-- [ ] On success: navigate to new playlist
+- [x] Build Create Playlist modal/screen (name field, description, privacy toggle)
+- [x] Validate: name required, max 50 chars
+- [x] On success: navigate to new playlist
 - ✅ Done when: User can create a playlist and it appears in their list
 
 ### TASK-403: Playlist List Screen
-- [ ] Build Playlist List screen (grid of playlist cards)
-- [ ] PlaylistCard shows: artwork (or default), name, song count
-- [ ] "+ New Playlist" button
-- [ ] Empty state
+- [x] Build Playlist List screen (grid of playlist cards)
+- [x] PlaylistCard shows: artwork (or default), name, song count
+- [x] "+ New Playlist" button
+- [x] Empty state
 - ✅ Done when: Created playlists show up as cards
 
 ### TASK-404: Playlist Details Screen
-- [ ] Build Playlist Details screen: header (artwork, name, count, play/sync buttons), song list
-- [ ] Add song to playlist (from ⋮ menu on SongRow or from song details)
-- [ ] Remove song from playlist (swipe or ⋮ menu)
-- [ ] Drag-to-reorder on desktop web (mobile: up/down arrows or long press)
+- [x] Build Playlist Details screen: header (artwork, name, count, play/sync buttons), song list
+- [x] Add song to playlist (from ⋮ menu on SongRow or from song details)
+- [x] Remove song from playlist (swipe or ⋮ menu)
+- [x] Drag-to-reorder on desktop web (mobile: up/down arrows or long press)
 - ✅ Done when: User can add songs to a playlist and see them in order
 
 ---
@@ -176,10 +176,10 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: Users can connect Spotify and sync playlists.
 
 ### TASK-501: Spotify OAuth (User Account)
-- [ ] `GET /api/v1/integrations/spotify/connect` — redirects to Spotify auth
-- [ ] `GET /api/v1/integrations/spotify/callback` — handles OAuth callback, stores access/refresh tokens in `connected_accounts` table (encrypted, never sent to client)
-- [ ] Token refresh logic (Spotify tokens expire in 1 hour — auto-refresh before expiry)
-- [ ] `GET /api/v1/integrations` — returns which services are connected
+- [x] `GET /api/v1/integrations/spotify/connect` — redirects to Spotify auth
+- [x] `GET /api/v1/integrations/spotify/callback` — handles OAuth callback, stores access/refresh tokens in `connected_accounts` table (encrypted, never sent to client)
+- [x] Token refresh logic (Spotify tokens expire in 1 hour — auto-refresh before expiry)
+- [x] `GET /api/v1/integrations` — returns which services are connected
 - ✅ Done when: User can connect Spotify and the DB shows their tokens
 
 ### TASK-502: Spotify Connect Screen (Mobile)
@@ -344,9 +344,9 @@ Run this test case end-to-end before calling MVP done:
 ---
 
 ## Future (Post-MVP Backlog)
-- TASK-F01: Duplicate detection UI improvements
+- TASK-F01: For non named songs use ai to analyse and find the song
 - TASK-F02: Shareable playlist links (public playlists with web preview)
-- TASK-F03: AI Playlist Generator ("Make me a playlist for a rainy night")
+- TASK-F03: Duplicate detection UI improvements
 - TASK-F04: AI Mood Classification (auto-tag songs: Chill, Energy, Romantic, etc.)
 - TASK-F05: Smart playlist suggestions ("You've saved 12 similar songs. Create a playlist?")
 - TASK-F06: Apple Music integration
@@ -354,3 +354,4 @@ Run this test case end-to-end before calling MVP done:
 - TASK-F08: Social features (follow friends, public playlists, likes)
 - TASK-F09: Collaborative playlists
 - TASK-F10: PostHog analytics dashboard review + growth loop optimization
+- TASK-F11: for non named songs use ai to analyse and find the song

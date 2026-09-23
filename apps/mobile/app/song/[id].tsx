@@ -7,7 +7,7 @@ import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { useSong } from '../../hooks/useSong';
 import { useSaveSong } from '../../hooks/useSaveSong';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
-import { Toast } from '../../components/ui/Toast';
+import { useToastStore } from '../../store/useToastStore';
 import { Heart, ExternalLink, ChevronLeft, X } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -27,8 +27,7 @@ export default function SongDetailsScreen() {
   const { mutate: saveSong } = useSaveSong();
 
   const [isSavedLocal, setIsSavedLocal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('Song saved!');
+  const { showToast } = useToastStore();
   
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
@@ -72,7 +71,7 @@ export default function SongDetailsScreen() {
         if (data.alreadySaved) {
           setShowDuplicateModal(true);
         } else {
-          setShowToast(true);
+          showToast('Song saved!', 'success');
         }
       },
       onError: () => {
@@ -104,11 +103,6 @@ export default function SongDetailsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Toast 
-        visible={showToast} 
-        message={toastMsg} 
-        onHide={() => setShowToast(false)} 
-      />
 
       {/* Duplicate Modal */}
       <Modal
@@ -155,8 +149,7 @@ export default function SongDetailsScreen() {
         songId={song.id}
         onClose={() => setShowAddToPlaylist(false)}
         onSuccess={(playlistName) => {
-          setToastMsg(`Added to ${playlistName}`);
-          setShowToast(true);
+          showToast(`Added to ${playlistName}`, 'success');
         }}
       />
 

@@ -3,37 +3,53 @@ import { StyleSheet, Text } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { Colors } from '../../constants/Colors';
 import { Typography, Radius, Spacing } from '../../constants/Theme';
-import { CheckCircle2 } from 'lucide-react-native';
+import { CheckCircle2, AlertCircle, Info } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { ToastType } from '../../store/useToastStore';
 
 interface ToastProps {
-  visible: boolean;
   message: string;
+  type: ToastType;
   onHide: () => void;
   duration?: number;
 }
 
-export function Toast({ visible, message, onHide, duration = 3000 }: ToastProps) {
+export function Toast({ message, type, onHide, duration = 3000 }: ToastProps) {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    if (visible) {
-      const timer = setTimeout(() => {
-        onHide();
-      }, duration);
-      return () => clearTimeout(timer);
-    }
-  }, [visible, duration, onHide]);
+    const timer = setTimeout(() => {
+      onHide();
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [duration, onHide]);
 
-  if (!visible) return null;
+  const getBackgroundColor = () => {
+    switch (type) {
+      case 'error': return Colors.error;
+      case 'info': return Colors.accent;
+      default: return Colors.success;
+    }
+  };
+
+  const IconComponent = () => {
+    switch (type) {
+      case 'error': return <AlertCircle size={20} color={Colors.bgPrimary} />;
+      case 'info': return <Info size={20} color={Colors.bgPrimary} />;
+      default: return <CheckCircle2 size={20} color={Colors.bgPrimary} />;
+    }
+  };
 
   return (
     <Animated.View
       entering={FadeInUp.duration(300)}
       exiting={FadeOutUp.duration(300)}
-      style={[styles.container, { top: insets.top + Spacing.md }]}
+      style={[
+        styles.container, 
+        { top: insets.top + Spacing.md, backgroundColor: getBackgroundColor() }
+      ]}
     >
-      <CheckCircle2 size={20} color={Colors.bgPrimary} />
+      <IconComponent />
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
   );
@@ -44,7 +60,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: Spacing.lg,
     right: Spacing.lg,
-    backgroundColor: Colors.success,
     borderRadius: Radius.card,
     padding: Spacing.md,
     flexDirection: 'row',
@@ -62,5 +77,7 @@ const styles = StyleSheet.create({
     ...Typography.body,
     fontFamily: 'Manrope_600SemiBold',
     color: Colors.bgPrimary,
+    flex: 1,
   },
 });
+

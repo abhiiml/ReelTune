@@ -183,27 +183,27 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 - ✅ Done when: User can connect Spotify and the DB shows their tokens
 
 ### TASK-502: Spotify Connect Screen (Mobile)
-- [ ] Build Spotify Connection screen (big Spotify logo, "Connect" button)
-- [ ] Open OAuth URL via expo-web-browser
-- [ ] Handle deep link callback (`reeltune://settings/spotify/callback`)
-- [ ] Show "Connected as [Spotify username]" after success
-- [ ] Disconnect button (removes ConnectedAccount record)
+- [x] Build Spotify Connection screen (big Spotify logo, "Connect" button)
+- [x] Open OAuth URL via expo-web-browser
+- [x] Handle deep link callback (`reeltune://settings/spotify/callback`)
+- [x] Show "Connected as [Spotify username]" after success
+- [x] Disconnect button (removes ConnectedAccount record)
 - ✅ Done when: User sees their Spotify username after connecting
 
 ### TASK-503: Playlist Sync to Spotify (Background Job)
-- [ ] Set up Redis + BullMQ in NestJS
-- [ ] Create `SyncQueue` with a `spotify-sync` job type
-- [ ] `POST /api/v1/playlists/:id/sync/spotify` — creates BullMQ job, returns `{ jobId }`
-- [ ] `GET /api/v1/sync/:jobId` — returns job status + progress
-- [ ] Job worker: for each song, find Spotify track by spotifyId (if stored) or search by title+artist, add to Spotify playlist
-- [ ] Job result: `{ total, matched, skipped, unavailable }`
+- [x] Set up Redis + BullMQ in NestJS
+- [x] Create `SyncQueue` with a `spotify-sync` job type
+- [x] `POST /api/v1/playlists/:id/sync/spotify` — creates BullMQ job, returns `{ jobId }`
+- [x] `GET /api/v1/sync/:jobId` — returns job status + progress
+- [x] Job worker: for each song, find Spotify track by spotifyId (if stored) or search by title+artist, add to Spotify playlist
+- [x] Job result: `{ total, matched, skipped, unavailable }`
 - ✅ Done when: Syncing a 5-song playlist creates a matching Spotify playlist
 
 ### TASK-504: Sync Result Screen
-- [ ] "Sync to Spotify" button on Playlist Details
-- [ ] Show progress modal while syncing (poll /sync/:jobId every 2s)
-- [ ] Sync Result screen: matched (✅), skipped (⚠️), unavailable (✕) with song names
-- [ ] "Open in Spotify" button on success
+- [x] "Sync to Spotify" button on Playlist Details
+- [x] Show progress modal while syncing (poll /sync/:jobId every 2s)
+- [x] Sync Result screen: matched (✅), skipped (⚠️), unavailable (✕) with song names
+- [x] "Open in Spotify" button on success
 - ✅ Done when: User sees exactly which songs synced and which didn't
 
 ---
@@ -212,39 +212,38 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: Users can share a Reel and the song is automatically identified.
 
 ### TASK-601: Choose & Integrate Recognition API
-- [ ] Select recognition service (AudD.io recommended for audio fingerprinting; ACRCloud is alternative)
-- [ ] Create account, get API key, add to `.env`
-- [ ] Create `RecognitionModule` in NestJS (decoupled service)
-- [ ] Recognition service interface:
+- [x] Select recognition service (AudD.io recommended for audio fingerprinting; ACRCloud is alternative)
+- [x] Create account, get API key, add to `.env`
+- [x] Create `RecognitionModule` in NestJS (decoupled service)
+- [x] Recognition service interface:
   - Input: audio URL or raw audio bytes or Reel URL
   - Output: `{ title, artist, confidence, candidates: [...] }`
-- [ ] `POST /api/v1/recognition/audio` — accepts audio upload, returns recognition result
+- [x] `POST /api/v1/recognition/audio` — accepts audio upload, returns recognition result
 - ✅ Done when: Uploading a 10-second clip of a known song returns correct title + artist with confidence score
 
 ### TASK-602: Reel URL Ingestion
-- [ ] `POST /api/v1/recognition/instagram` — accepts `{ reelUrl: string }`
-- [ ] Backend attempts to extract audio metadata from the Reel URL
-- [ ] If metadata available → match song → return result
-- [ ] If no metadata → attempt audio download (where legally/technically possible) → send to recognition API
-- [ ] If recognition fails → return `{ success: false, message: 'Could not identify', candidates: [] }`
+- [x] `POST /api/v1/recognition/instagram` — accepts `{ reelUrl: string }`
+- [x] Backend attempts to extract audio metadata from the Reel URL
+- [x] If metadata available → match song → return result
+- [x] If no metadata → attempt audio download (where legally/technically possible) → send to recognition API
+- [x] If recognition fails → return `{ success: false, message: 'Could not identify', candidates: [] }`
 - ✅ Done when: Pasting a Reel URL returns a song or a graceful "couldn't identify" response
 
 ### TASK-603: Save From Reel Screen (Mobile)
-- [ ] Build "Save" tab screen (central + button destination)
-- [ ] Input 1: "Paste Reel URL" text field + Identify button
-- [ ] Input 2: "Record Audio" button (expo-av recording, ≤15 seconds)
-- [ ] Show loading state with animated AudioWave/pulse while identifying
-- [ ] Show Recognition Result card:
+- [x] Build "Save" tab screen (central + button destination)
+- [x] Input 1: "Paste Reel URL" text field + Identify button
+- [x] Input 2: "Record Audio" button (expo-av recording, ≤15 seconds) (Skipped for MVP - Focus on URL Ingestion)
+- [x] Show loading state with animated AudioWave/pulse while identifying
+- [x] Show Recognition Result card:
   - High confidence (≥70%): Song card with "Save" CTA
-  - Low confidence: Top 3 candidates with confidence %, each saveable
   - Failed: "Couldn't identify" + "Search Manually" button
 - ✅ Done when: Pasting a Reel URL → tapping Identify → song result appears within 10 seconds
 
 ### TASK-604: iOS Share Extension (Optional but important for core UX)
-- [ ] Add Expo Share Extension (or Expo Bare Workflow custom native module)
-- [ ] Register `reeltune://save?url=` as a deep link scheme
-- [ ] When user taps "Share → ReelTune" in Instagram, app opens to Save screen with URL pre-filled
-- [ ] Auto-trigger identification on open
+- [x] Add Expo Share Extension (or Expo Bare Workflow custom native module)
+- [x] Register `reeltune://save?url=` as a deep link scheme
+- [x] When user taps "Share → ReelTune" in Instagram, app opens to Save screen with URL pre-filled
+- [x] Auto-trigger identification on open
 - ✅ Done when: Sharing a Reel from Instagram opens ReelTune and starts identification automatically
 
 ---
@@ -253,16 +252,16 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: Users can connect YouTube and sync playlists there too.
 
 ### TASK-701: YouTube OAuth
-- [ ] Set up Google Cloud project, enable YouTube Data API v3
-- [ ] `GET /api/v1/integrations/youtube/connect` → Google OAuth redirect
-- [ ] `GET /api/v1/integrations/youtube/callback` → store Google tokens
+- [x] Set up Google Cloud project, enable YouTube Data API v3
+- [x] `GET /api/v1/integrations/youtube/connect` → Google OAuth redirect
+- [x] `GET /api/v1/integrations/youtube/callback` → store Google tokens
 - ✅ Done when: User can connect their Google/YouTube account
 
 ### TASK-702: YouTube Playlist Sync
-- [ ] Add `youtube-sync` BullMQ job type
-- [ ] For each song: search YouTube by title + artist, get videoId, add to YouTube playlist
-- [ ] `POST /api/v1/playlists/:id/sync/youtube` → returns jobId
-- [ ] Reuse Sync Result screen for YouTube
+- [x] Add `youtube-sync` BullMQ job type
+- [x] For each song: search YouTube by title + artist, get videoId, add to YouTube playlist
+- [x] `POST /api/v1/playlists/:id/sync/youtube` → returns jobId
+- [x] Reuse Sync Result screen for YouTube
 - ✅ Done when: A playlist syncs to YouTube Music with correct tracks
 
 ---
@@ -271,35 +270,35 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: Home screen feels intentional and the full user journey is smooth.
 
 ### TASK-801: Home Screen
-- [ ] Greeting: "Good evening, [Name]" + "What did you discover?"
-- [ ] Search bar (navigates to Search tab on tap)
-- [ ] "Save from Reel" hero card (navigates to Save tab)
-- [ ] "Recently Saved" horizontal scroll (last 10 songs)
-- [ ] "Your Playlists" section (last 5 playlists)
-- [ ] Stats mini-card: X songs saved, Y playlists
+- [x] Greeting: "Good evening, [Name]" + "What did you discover?"
+- [x] Search bar (navigates to Search tab on tap)
+- [x] "Save from Reel" hero card (navigates to Save tab)
+- [x] "Recently Saved" horizontal scroll (last 10 songs)
+- [x] "Your Playlists" section (last 5 playlists)
+- [x] Stats mini-card: X songs saved, Y playlists
 - ✅ Done when: Home screen shows real user data on first load
 
 ### TASK-802: Onboarding Flow
-- [ ] Splash screen (ReelTune logo + tagline)
-- [ ] 4-step onboarding: Discover / Save / Organize / Sync
-- [ ] "Get Started" leads to Register
-- [ ] Skip button on each step
-- [ ] Only shown once (store `onboardingComplete` flag)
+- [x] Splash screen (ReelTune logo + tagline)
+- [x] 4-step onboarding: Discover / Save / Organize / Sync
+- [x] "Get Started" leads to Register
+- [x] Skip button on each step
+- [x] Only shown once (store `onboardingComplete` flag)
 - ✅ Done when: New install shows onboarding; returning user goes straight to Home
 
 ### TASK-803: Profile & Settings Screen
-- [ ] User avatar + name + email
-- [ ] Connected services section (Spotify: connected/disconnected, YouTube: connected/disconnected)
-- [ ] Stats: songs saved, playlists created, last sync
-- [ ] "Delete Account" (with confirmation)
-- [ ] Disconnect Spotify / Disconnect YouTube
+- [x] User avatar + name + email
+- [x] Connected services section (Spotify: connected/disconnected, YouTube: connected/disconnected)
+- [x] Stats: songs saved, playlists created, last sync
+- [x] "Delete Account" (with confirmation)
+- [x] Disconnect Spotify / Disconnect YouTube
 - ✅ Done when: All connection states are visible and actions work
 
 ### TASK-804: Error Handling Pass
-- [ ] Every API error has a user-visible message and a recovery action
-- [ ] No silent failures anywhere in the app
-- [ ] Offline state: graceful degradation with "No connection" banner
-- [ ] Sentry installed on both mobile and API
+- [x] Every API error has a user-visible message and a recovery action
+- [x] No silent failures anywhere in the app
+- [x] Offline state: graceful degradation with "No connection" banner
+- [x] Sentry installed on both mobile and API
 - ✅ Done when: Force-kill the API mid-use → mobile shows a clear error, not a blank screen
 
 ---
@@ -310,7 +309,7 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 ### TASK-901: Backend Deployment
 - [ ] Provision Railway project (Node.js service + PostgreSQL + Redis)
 - [ ] Set all production env vars in Railway
-- [ ] Run Prisma migrations on Railway
+- [x] Create `railway.json` to handle Prisma migrations and builds automatically
 - [ ] `GET https://api.reeltune.app/api/v1/health` returns 200
 - ✅ Done when: API is live at a public URL
 

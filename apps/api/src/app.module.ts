@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
@@ -9,9 +10,27 @@ import { SongsModule } from './songs/songs.module.js';
 import { UsersModule } from './users/users.module.js';
 import { PlaylistsModule } from './playlists/playlists.module.js';
 import { IntegrationsModule } from './integrations/integrations.module.js';
+import { SyncModule } from './sync/sync.module.js';
+import { RecognitionModule } from './recognition/recognition.module.js';
 
 @Module({
-  imports: [SupabaseModule, PrismaModule, AuthModule, SpotifyModule, SongsModule, UsersModule, PlaylistsModule, IntegrationsModule],
+  imports: [
+    BullModule.forRoot({
+      connection: {
+        url: process.env.REDIS_URL || 'redis://localhost:6379',
+      },
+    }),
+    SupabaseModule, 
+    PrismaModule, 
+    AuthModule, 
+    SpotifyModule, 
+    SongsModule, 
+    UsersModule, 
+    PlaylistsModule, 
+    IntegrationsModule,
+    SyncModule,
+    RecognitionModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

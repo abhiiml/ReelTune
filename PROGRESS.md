@@ -79,7 +79,51 @@
   - Created `/api/v1/integrations/spotify/callback` endpoint to handle token exchanges
   - Stored tokens securely in the `ConnectedAccount` Prisma model
   - Added `/api/v1/integrations` to fetch connected services
-- 🚧 **TASK-502: Spotify Connect Screen (Mobile)** — Awaiting implementation
+- ✅ **TASK-502: Spotify Connect Screen (Mobile)**
+  - Built Spotify Connection screen
+  - Opened OAuth URL via expo-web-browser
+  - Handled deep link callback
+  - Show connected state in UI
+  - Added Disconnect button and token encryption on backend
+- ✅ **TASK-503: Playlist Sync to Spotify (Background Job)**
+  - Set up Redis + BullMQ in NestJS
+  - Created `SyncQueue` with a `spotify-sync` job type
+  - Built `POST /api/v1/playlists/:id/sync/spotify` endpoint
+  - Built `GET /api/v1/sync/:jobId` endpoint
+  - Built Job worker to sync songs to Spotify
+- ✅ **TASK-504: Sync Result Screen**
+  - "Sync to Spotify" button on Playlist Details
+  - Show progress modal while syncing
+  - Sync Result screen: matched, skipped, unavailable
+  - "Open in Spotify" button on success
+- ✅ **TASK-601: Choose & Integrate Recognition API**
+  - Added AudD.io integration with graceful mock fallback
+  - Created `RecognitionModule` in NestJS
+  - Implemented `POST /api/v1/recognition/audio` endpoint
+- ✅ **TASK-602: Reel URL Ingestion**
+  - Implemented `POST /api/v1/recognition/instagram`
+  - Extracted audio metadata from Reel URL using `youtube-dl-exec`
+  - Piped directly to `AudD` mock and returned graceful error on failure
+- ✅ **TASK-603: "Identify Song" Mobile Flow**
+  - Added URL input to Home Screen
+  - Integrated `useIdentifyReel` React Query mutation
+  - Created `IdentificationResultModal` UI for success/error states
+- ✅ **TASK-604: iOS Share Extension & Deep Linking**
+  - Integrated `expo-share-intent` config plugin
+  - Handled incoming shared URLs to auto-populate and trigger identification on Home Screen
+
+> **✅ Phase 6 Verification Complete:** The complete flow (Reel URL → Extraction → AudD Mock/API → Spotify Metadata Match → Save to Library) has been fully implemented, typechecked, linted, and verified end-to-end. All UI loading states, confidence thresholds, duplicate checks, and deep link intents work as intended.
+
+- ✅ **TASK-701: YouTube OAuth**
+  - Added custom NestJS OAuth flow using `googleapis`
+  - Encrypted and stored YouTube tokens in `ConnectedAccount` table
+  - Created `/settings/youtube` connection screen on Mobile
+
+- ✅ **TASK-702: YouTube Playlist Sync**
+  - Added `youtube-sync.processor.ts` for BullMQ utilizing `youtube.playlists.insert` and `youtube.search.list`
+  - Created backend `POST /api/v1/playlists/:id/sync/youtube` endpoint
+  - Added intuitive Action Sheet on mobile Playlist Details to choose sync destination (Spotify vs. YouTube)
+  - Leveraged existing generic `SyncProgressModal` for seamless progress bar UX
 
 ## Decisions Made (Not in SKILLS.md)
 - **NativeWind v4 Babel Config**: Removed `nativewind/babel` from `babel.config.js` as NativeWind v4 relies entirely on the Metro bundler (`withNativeWind`).
@@ -99,8 +143,28 @@
 - **Supabase ANON_KEY in mobile**: The mobile app uses `@supabase/supabase-js` directly with the anon key. This is fine for client auth (RLS policies protect data). Never use the service role key in mobile.
 
 ## Exact Next Step
-**TASK-502 — Spotify Connect Screen (Mobile):**
-- Build Spotify Connection screen
-- Open OAuth URL via expo-web-browser
-- Handle deep link callback
-- Show connected state in UI
+**PHASE 8 — HOME SCREEN & POLISH:**
+- ✅ **TASK-801: Home Screen**
+  - Moved "Save from Reel" logic from `index.tsx` to a dedicated `save.tsx` tab screen.
+  - Overhauled `index.tsx` into a polished Home Screen featuring:
+    - Time-based greeting ("Good evening, [Name]")
+    - Hero Card navigating to the Save tab
+    - Horizontal scroll view for "Recently Saved" songs (top 10)
+    - Horizontal scroll view for "Your Playlists" (top 5)
+    - Stats mini-cards for "Songs Saved" and "Playlists"
+- ✅ **TASK-802: Onboarding Flow**
+  - Styled Splash screen configuration in `app.json` with a dark theme background.
+  - Implemented 4-step onboarding carousel with `ScrollView` and pagination dots.
+  - Integrated `expo-secure-store` to save `onboardingComplete`.
+  - Updated root router to seamlessly manage First-Time User Experience (FTUE).
+- ✅ **TASK-803: Profile & Settings Screen**
+  - Added a secure `DELETE /me` API endpoint.
+  - Profile screen now displays the user's global stats (Songs Saved / Playlists).
+  - Spotify and YouTube connection statuses are visible directly on the Profile options.
+  - Implemented a "Delete Account" button with a native confirmation modal that wipes the account via Cascade delete.
+- Start **TASK-804: Error Handling Pass**
+  - Every API error has a user-visible message and a recovery action
+  - No silent failures anywhere in the app
+  - Offline state: graceful degradation with "No connection" banner
+  - Sentry installed on both mobile and API
+

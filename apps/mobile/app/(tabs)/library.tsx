@@ -10,7 +10,7 @@ import { useUnsaveSong } from '../../hooks/useUnsaveSong';
 import { SongRow } from '../../components/ui/SongRow';
 import { PlaylistCard } from '../../components/ui/PlaylistCard';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
-import { Toast } from '../../components/ui/Toast';
+import { useToastStore } from '../../store/useToastStore';
 import { LibraryBig, Trash2, ExternalLink, X, Plus, Music, PlusCircle } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -26,8 +26,7 @@ export default function LibraryScreen() {
   const { data: songsData, isLoading: songsLoading, refetch: refetchSongs, isRefetching: isRefetchingSongs } = useSavedSongs();
   const { mutate: unsaveSong } = useUnsaveSong();
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('Song removed');
+  const { showToast } = useToastStore();
   const [sortBy, setSortBy] = useState<'recent' | 'title' | 'artist'>('recent');
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
 
@@ -58,8 +57,7 @@ export default function LibraryScreen() {
     unsaveSong(selectedSong.id, {
       onSuccess: () => {
         setSelectedSong(null);
-        setToastMsg('Song removed from library');
-        setShowToast(true);
+        showToast('Song removed from library', 'success');
       }
     });
   };
@@ -184,12 +182,6 @@ export default function LibraryScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Toast 
-        visible={showToast} 
-        message={toastMsg} 
-        onHide={() => setShowToast(false)} 
-      />
-
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Your Library</Text>
         
@@ -266,8 +258,7 @@ export default function LibraryScreen() {
           setSelectedSong(null);
         }}
         onSuccess={(playlistName) => {
-          setToastMsg(`Added to ${playlistName}`);
-          setShowToast(true);
+          showToast(`Added to ${playlistName}`, 'success');
           setSelectedSong(null);
         }}
       />

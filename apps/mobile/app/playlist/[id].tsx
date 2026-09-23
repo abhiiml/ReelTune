@@ -8,10 +8,13 @@ import { usePlaylist, type PlaylistSong } from '../../hooks/usePlaylist';
 import { useRemoveSongFromPlaylist } from '../../hooks/useRemoveSongFromPlaylist';
 import { useReorderPlaylistSongs } from '../../hooks/useReorderPlaylistSongs';
 import { SongRow } from '../../components/ui/SongRow';
-import { Toast } from '../../components/ui/Toast';
-import { ArrowLeft, Lock, Music, Trash2, ArrowUp, ArrowDown, ExternalLink, X } from 'lucide-react-native';
+import { useToastStore } from '../../store/useToastStore';
+import { SyncProgressModal } from '../../components/ui/SyncProgressModal';
+import { ArrowLeft, Lock, Music, Trash2, ArrowUp, ArrowDown, ExternalLink, X, RefreshCw } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import { useSyncPlaylistToSpotify } from '../../hooks/useSyncPlaylistToSpotify';
+import { useSyncPlaylistToYouTube } from '../../hooks/useSyncPlaylistToYouTube';
 
 export default function PlaylistDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,10 +24,13 @@ export default function PlaylistDetailsScreen() {
   const { data: playlist, isLoading } = usePlaylist(id);
   const { mutate: removeSong } = useRemoveSongFromPlaylist();
   const { mutate: reorderSongs } = useReorderPlaylistSongs();
+  const { mutate: syncSpotify, isPending: isSyncingSpotify } = useSyncPlaylistToSpotify();
+  const { mutate: syncYouTube, isPending: isSyncingYouTube } = useSyncPlaylistToYouTube();
 
   const [selectedItem, setSelectedItem] = useState<PlaylistSong | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('');
+  const { showToast } = useToastStore();
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [showSyncOptions, setShowSyncOptions] = useState(false);
 
   if (isLoading) {
     return (
@@ -58,8 +64,7 @@ export default function PlaylistDetailsScreen() {
       {
         onSuccess: () => {
           setSelectedItem(null);
-          setToastMsg('Song removed');
-          setShowToast(true);
+          showToast('Song removed', 'success');
         }
       }
     );
@@ -123,14 +128,28 @@ export default function PlaylistDetailsScreen() {
     }
   };
 
+  const handleSyncSpotify = () => {
+    setShowSyncOptions(false);
+    syncSpotify(playlist.id, {
+      onSuccess: (data) => setActiveJobId(data.jobId),
+      onError: (err: Error) => {
+        showToast(err.message || 'Failed to sync to Spotify', 'error');
+      }
+    });
+  };
+
+  const handleSyncYouTube = () => {
+    setShowSyncOptions(false);
+    syncYouTube(playlist.id, {
+      onSuccess: (data) => setActiveJobId(data.jobId),
+      onError: (err: Error) => {
+        showToast(err.message || 'Failed to sync to YouTube', 'error');
+      }
+    });
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Toast 
-        visible={showToast} 
-        message={toastMsg}
-        onHide={() => setShowToast(false)} 
-      />
-
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color={Colors.textPrimary} />
@@ -156,6 +175,17 @@ export default function PlaylistDetailsScreen() {
             <Text style={styles.playlistCount}>
               {songs.length} {songs.length === 1 ? 'song' : 'songs'}
             </Text>
+
+            {songs.length > 0 && (
+              <Pressable 
+                style={styles.syncButton} 
+                onPress={() => setShowSyncOptions(true)}
+                disabled={isSyncingSpotify || isSyncingYouTube}
+              >
+                <RefreshCw size={16} color="#fff" />
+                <Text style={styles.syncButtonText}>Sync Playlist</Text>
+              </Pressable>
+            )}
           </View>
         }
         ListEmptyComponent={
@@ -217,6 +247,46 @@ export default function PlaylistDetailsScreen() {
               <Pressable style={styles.actionRow} onPress={handlePlayYouTube}>
                 <ExternalLink size={24} color={Colors.youtube} />
                 <Text style={[styles.actionText, { color: Colors.youtube }]}>Play on YouTube</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <SyncProgressModal 
+        jobId={activeJobId} 
+        onClose={() => setActiveJobId(null)} 
+      />
+
+      {/* Sync Options Modal */}
+      <Modal
+        visible={showSyncOptions}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSyncOptions(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setShowSyncOptions(false)} />
+          <View style={[styles.bottomSheet, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
+            <View style={styles.sheetHeader}>
+              <View>
+                <Text style={styles.sheetTitle}>Sync Playlist</Text>
+                <Text style={styles.sheetSubtitle}>Choose a destination service</Text>
+              </View>
+              <Pressable onPress={() => setShowSyncOptions(false)} style={styles.closeBtn}>
+                <X size={24} color={Colors.textSecondary} />
+              </Pressable>
+            </View>
+            
+            <View style={styles.sheetActions}>
+              <Pressable style={styles.actionRow} onPress={handleSyncSpotify}>
+                <ExternalLink size={24} color={Colors.spotify} />
+                <Text style={[styles.actionText, { color: Colors.textPrimary }]}>Spotify</Text>
+              </Pressable>
+
+              <Pressable style={styles.actionRow} onPress={handleSyncYouTube}>
+                <ExternalLink size={24} color={Colors.youtube} />
+                <Text style={[styles.actionText, { color: Colors.textPrimary }]}>YouTube Music</Text>
               </Pressable>
             </View>
           </View>
@@ -285,6 +355,22 @@ const styles = StyleSheet.create({
   playlistCount: {
     ...Typography.small,
     color: Colors.accent,
+  },
+  syncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.spotify,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: 9999,
+    marginTop: Spacing.md,
+    gap: Spacing.sm,
+  },
+  syncButtonText: {
+    ...Typography.body,
+    color: '#fff',
+    fontFamily: 'Manrope_700Bold',
   },
   listContainer: {
     paddingBottom: Spacing.xl,

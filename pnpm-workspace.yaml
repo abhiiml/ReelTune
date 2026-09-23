@@ -11,3 +11,6 @@ allowBuilds:
   "@prisma/engines": true
   "@nestjs/core": true
   "@nestjs/cli": true
+  youtube-dl-exec: set this to true or false
+  '@sentry/cli': set this to true or false
+  '@sentry/node-cpu-profiler': set this to true or false

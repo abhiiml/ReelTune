@@ -8,4 +8,4 @@ cmds = ["pnpm install --frozen-lockfile"]
 cmds = ["pnpm --filter api run db:generate", "pnpm --filter api run build"]
 
 [start]
-cmd = "pnpm --filter api exec prisma migrate deploy && pnpm --filter api run start:prod"
+cmd = "pnpm --filter api exec prisma db push --accept-data-loss && pnpm --filter api run start:prod"

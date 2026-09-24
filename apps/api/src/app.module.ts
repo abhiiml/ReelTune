@@ -18,6 +18,7 @@ import { RecognitionModule } from './recognition/recognition.module.js';
     BullModule.forRoot({
       connection: {
         url: process.env.REDIS_URL || 'redis://localhost:6379',
+        family: 0,
       },
     }),
     SupabaseModule, 

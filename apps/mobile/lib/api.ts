@@ -23,7 +23,11 @@ export const fetchApi = async <T>(endpoint: string, options: RequestInit = {}): 
     let errorMessage = 'An error occurred';
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message.join(', ');
+      } else {
+        errorMessage = errorData.message || errorMessage;
+      }
     } catch (e) {
       errorMessage = await response.text();
     }

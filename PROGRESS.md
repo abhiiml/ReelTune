@@ -162,9 +162,16 @@
   - Profile screen now displays the user's global stats (Songs Saved / Playlists).
   - Spotify and YouTube connection statuses are visible directly on the Profile options.
   - Implemented a "Delete Account" button with a native confirmation modal that wipes the account via Cascade delete.
-- Start **TASK-804: Error Handling Pass**
+- ✅ **TASK-804: Error Handling Pass**
   - Every API error has a user-visible message and a recovery action
   - No silent failures anywhere in the app
   - Offline state: graceful degradation with "No connection" banner
   - Sentry installed on both mobile and API
 
+### TASK-901 Fixes (Railway Deployment & Nixpacks)
+- Investigated `youtube-dl-exec` missing Python during `pnpm i` on Railway.
+- Determined `youtube-dl-exec` is genuinely required at runtime by `recognition.service.ts` to extract raw media URLs from Instagram Reels.
+- Created `nixpacks.toml` at the project root to inject `python3` into the Nixpacks setup.
+- Configured `.npmrc` with `onlyBuiltDependencies` array to explicitly approve `youtube-dl-exec`, `@prisma/client`, and `@sentry` build scripts for pnpm v9 security compliance (`ERR_PNPM_IGNORED_BUILDS`).
+- Simplified `railway.json` to only declare healthcheck settings, allowing Nixpacks to natively orchestrate the pnpm workspace `build` and `install` commands without interfering.
+- Verified the build pipeline locally using `pnpm --filter api typecheck / lint / build` and `pnpm test`.

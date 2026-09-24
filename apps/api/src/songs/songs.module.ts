@@ -8,5 +8,6 @@ import { PrismaModule } from '../prisma/prisma.service.js';
   imports: [SpotifyModule, PrismaModule],
   controllers: [SongsController],
   providers: [SongsService],
+  exports: [SongsService],
 })
 export class SongsModule {}

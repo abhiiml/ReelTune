@@ -8,9 +8,9 @@ export class IntegrationsService {
   constructor(private readonly prisma: PrismaService) {}
 
   private getEncryptionKey(): Buffer {
-    const keyStr = process.env.ENCRYPTION_KEY;
+    const keyStr = process.env.TOKEN_ENCRYPTION_KEY || process.env.ENCRYPTION_KEY;
     if (!keyStr || keyStr.length !== 64) {
-      throw new Error('ENCRYPTION_KEY is missing or invalid. Must be a 32-byte hex string (64 characters).');
+      throw new Error('TOKEN_ENCRYPTION_KEY is missing or invalid. Must be a 32-byte hex string (64 characters).');
     }
     return Buffer.from(keyStr, 'hex');
   }

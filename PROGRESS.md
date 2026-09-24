@@ -133,7 +133,7 @@
 - **Database Seeding Strategy**: Due to Prisma 8 RC's changing ORM API syntax, we bypassed the ORM specifically for the seed script (`apps/api/prisma/seed.ts`), utilizing `pg` directly via `tsx` to insert test rows. This ensures absolute stability for dev environments.
 - **Auth DB Writes via Prisma**: `AuthController` uses `PrismaService` (Prisma 5 stable) for all user operations. Previously used raw `pg` as a workaround for Prisma 8 RC instability — now fully cleaned up.
 - **User table column**: The DB column is `displayName` (not `name`). The API `RegisterDto` accepts `name` for the request body but maps it to `displayName` in the upsert.
-- **Spotify API Mocking**: Per user request, the `SpotifyService` has been completely mocked to bypass the need for Spotify credentials or Premium access. `searchTracks` returns mock data directly, preserving the `SongsService` architecture (which still upserts the returned songs to the local database) so the app can be developed without external dependencies. Spotify integration is now treated as a future phase.
+- **Spotify API Integration**: The `SpotifyService` has been completely rewritten to use a real Client Credentials flow via the Spotify REST API. It authenticates dynamically using `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` from `.env`, maintaining a cached token.
 
 ## Gotchas / Watch Out For
 - **Prisma 8 RC — REMOVED**: Prisma 8 RC packages (`@prisma/orm-postgres`, `@prisma/cli-engine`) have been fully removed. The project now uses Prisma 5 stable.
@@ -175,3 +175,9 @@
 - Configured `.npmrc` with `onlyBuiltDependencies` array to explicitly approve `youtube-dl-exec`, `@prisma/client`, and `@sentry` build scripts for pnpm v9 security compliance (`ERR_PNPM_IGNORED_BUILDS`).
 - Simplified `railway.json` to only declare healthcheck settings, allowing Nixpacks to natively orchestrate the pnpm workspace `build` and `install` commands without interfering.
 - Verified the build pipeline locally using `pnpm --filter api typecheck / lint / build` and `pnpm test`.
+
+### Pre-Deployment Fixes
+- ✅ **FIX 1 — Unmock Spotify Search**: Swapped mock Spotify tracks for real Client Credentials OAuth + REST search (`https://api.spotify.com/v1/search`) with in-memory token caching and auto-refresh. Returns `[]` gracefully with a warning if credentials are unset.
+- ✅ **FIX 2 — Fix nixpacks.toml**: Cleaned invalid `"..."` placeholder from `nixPkgs = ["python3"]` to ensure Railway builds cleanly.
+- ✅ **FIX 3 — Update .env.example & Token Encryption Key**: Replaced `apps/api/.env.example` with the complete variable template and migrated `process.env.ENCRYPTION_KEY` to `process.env.TOKEN_ENCRYPTION_KEY` across the codebase with backwards-compatible fallback.
+

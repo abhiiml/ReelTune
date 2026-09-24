@@ -9,3 +9,6 @@ cmds = ["pnpm --filter api run db:generate", "pnpm --filter api run build"]
 
 [start]
 cmd = "pnpm --filter api exec prisma db push --accept-data-loss && pnpm --filter api run start:prod"
+
+[phases.release]
+cmds = []

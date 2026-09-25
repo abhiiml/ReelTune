@@ -3,7 +3,7 @@ import { IntegrationsService } from './integrations.service.js';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard.js';
 import type { Response } from 'express';
 
-@Controller('api/v1/integrations')
+@Controller('integrations')
 export class IntegrationsController {
   constructor(private readonly integrationsService: IntegrationsService) {}
 

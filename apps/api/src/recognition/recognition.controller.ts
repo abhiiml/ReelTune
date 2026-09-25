@@ -2,7 +2,7 @@ import { Controller, Post, Body, UseGuards, BadRequestException } from '@nestjs/
 import { RecognitionService } from './recognition.service.js';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard.js';
 
-@Controller('api/v1/recognition')
+@Controller('recognition')
 export class RecognitionController {
   constructor(private readonly recognitionService: RecognitionService) {}
 

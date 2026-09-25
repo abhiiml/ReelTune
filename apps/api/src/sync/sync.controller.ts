@@ -2,7 +2,7 @@ import { Controller, Post, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { SyncService } from './sync.service.js';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard.js';
 
-@Controller('api/v1')
+@Controller()
 export class SyncController {
   constructor(private readonly syncService: SyncService) {}
 

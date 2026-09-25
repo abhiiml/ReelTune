@@ -28,7 +28,6 @@
     "db:seed": "prisma db seed"
   },
   "dependencies": {
-    "@nestjs/bullmq": "^12.0.0",
     "@nestjs/common": "^12.0.1",
     "@nestjs/core": "^12.0.1",
     "@nestjs/platform-express": "^12.0.1",
@@ -37,12 +36,10 @@
     "@sentry/node": "^10.75.1",
     "@sentry/profiling-node": "^10.75.1",
     "@supabase/supabase-js": "^2.116.0",
-    "bullmq": "^6.3.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^18.0.1",
     "googleapis": "^181.0.0",
-    "ioredis": "^6.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "youtube-dl-exec": "^3.1.15"

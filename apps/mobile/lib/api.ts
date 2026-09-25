@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const RAW_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+export const getBaseUrl = (): string => RAW_URL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
+export const API_URL = `${getBaseUrl()}/api/v1`;
 
 export const fetchApi = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
   const { data: { session } } = await supabase.auth.getSession();

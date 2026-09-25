@@ -1,23 +1,23 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { IntegrationsService } from '../integrations/integrations.service.js';
-import { Logger } from '@nestjs/common';
+import { JobQueueService } from './job-queue.service.js';
 
-@Processor('sync-queue')
-export class SpotifySyncProcessor extends WorkerHost {
+@Injectable()
+export class SpotifySyncProcessor {
   private readonly logger = new Logger(SpotifySyncProcessor.name);
 
   constructor(
     private prisma: PrismaService,
     private integrationsService: IntegrationsService,
-  ) {
-    super();
-  }
+    private jobQueue: JobQueueService,
+  ) {}
 
-  async process(job: Job<{ userId: string; playlistId: string }, unknown, string>): Promise<unknown> {
-    const { userId, playlistId } = job.data;
-    this.logger.log(`Processing sync for playlist ${playlistId} to Spotify`);
+  async process(jobId: string, data: { userId: string; playlistId: string }): Promise<void> {
+    const { userId, playlistId } = data;
+    this.logger.log(`Processing sync for playlist ${playlistId} to Spotify (Job: ${jobId})`);
+    
+    this.jobQueue.markActive(jobId);
 
     try {
       // 1. Get decrypted token (handles refresh)
@@ -36,7 +36,7 @@ export class SpotifySyncProcessor extends WorkerHost {
 
       if (!playlist) throw new Error('Playlist not found');
 
-      // 3. Get Spotify User Profile (to get userId for creating playlist)
+      // 3. Get Spotify User Profile
       const meRes = await fetch('https://api.spotify.com/v1/me', {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
@@ -65,7 +65,7 @@ export class SpotifySyncProcessor extends WorkerHost {
       let unavailable = 0;
       const trackUris: string[] = [];
 
-      await job.updateProgress(10); // created playlist
+      this.jobQueue.updateProgress(jobId, 10); // created playlist
 
       const totalSongs = playlist.songs.length;
 
@@ -106,12 +106,11 @@ export class SpotifySyncProcessor extends WorkerHost {
         }
 
         // update progress (from 10 to 90)
-        await job.updateProgress(10 + Math.floor(((i + 1) / totalSongs) * 80));
+        this.jobQueue.updateProgress(jobId, 10 + Math.floor(((i + 1) / totalSongs) * 80));
       }
 
       // 6. Add tracks to playlist
       if (trackUris.length > 0) {
-        // Spotify limit is 100 per request, we should chunk it if we expect > 100
         for (let i = 0; i < trackUris.length; i += 100) {
           const chunk = trackUris.slice(i, i + 100);
           await fetch(`https://api.spotify.com/v1/playlists/${spotifyPlaylist.id}/tracks`, {
@@ -125,8 +124,6 @@ export class SpotifySyncProcessor extends WorkerHost {
         }
       }
 
-      await job.updateProgress(100);
-
       const result = {
         total: totalSongs,
         matched,
@@ -136,13 +133,13 @@ export class SpotifySyncProcessor extends WorkerHost {
       };
 
       this.logger.log(`Sync complete: ${JSON.stringify(result)}`);
-      return result;
+      this.jobQueue.markCompleted(jobId, result);
 
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       const stack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Sync failed: ${msg}`, stack);
-      throw error;
+      this.jobQueue.markFailed(jobId, error);
     }
   }
 }

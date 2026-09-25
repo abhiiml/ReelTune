@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
@@ -15,12 +14,6 @@ import { RecognitionModule } from './recognition/recognition.module.js';
 
 @Module({
   imports: [
-    BullModule.forRoot({
-      connection: {
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
-        family: 0,
-      },
-    }),
     SupabaseModule, 
     PrismaModule, 
     AuthModule, 

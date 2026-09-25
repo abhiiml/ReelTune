@@ -307,15 +307,15 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 > Goal: The app is live and someone else can create an account.
 
 ### TASK-901: Backend Deployment
-- [ ] Provision Railway project (Node.js service + PostgreSQL + Redis)
-- [ ] Set all production env vars in Railway
+- [x] Provision Railway project (Node.js service + PostgreSQL + Redis)
+- [x] Set all production env vars in Railway
 - [x] Create `railway.json` to handle Prisma migrations and builds automatically
-- [ ] `GET https://api.reeltune.app/api/v1/health` returns 200
+- [x] `GET https://api.reeltune.app/api/v1/health` returns 200
 - ✅ Done when: API is live at a public URL
 
 ### TASK-902: Mobile TestFlight/Play Console Build
 - [ ] Set up Expo EAS account
-- [ ] Configure `eas.json` (development, preview, production profiles)
+- [x] Configure `eas.json` (development, preview, production profiles)
 - [ ] `eas build --platform ios` (TestFlight)
 - [ ] `eas build --platform android` (Play Console internal testing)
 - ✅ Done when: App installs on a real device from TestFlight or Play Console

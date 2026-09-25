@@ -76,7 +76,7 @@ export class SpotifyService {
       const data = await response.json();
       const tracks = data.tracks?.items || [];
 
-      return tracks.map((track: any) => this.mapToInternalSong(track));
+      return tracks.map((track: Record<string, unknown>) => this.mapToInternalSong(track));
     } catch (error) {
       this.logger.error(`Error during Spotify search: ${error instanceof Error ? error.message : String(error)}`);
       return [];

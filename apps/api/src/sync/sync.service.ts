@@ -1,13 +1,16 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { JobQueueService } from './job-queue.service.js';
+import { SpotifySyncProcessor } from './spotify-sync.processor.js';
+import { YoutubeSyncProcessor } from './youtube-sync.processor.js';
 
 @Injectable()
 export class SyncService {
   constructor(
-    @InjectQueue('sync-queue') private syncQueue: Queue,
+    private jobQueue: JobQueueService,
     private prisma: PrismaService,
+    private spotifyProcessor: SpotifySyncProcessor,
+    private youtubeProcessor: YoutubeSyncProcessor,
   ) {}
 
   async enqueueSpotifySync(userId: string, playlistId: string): Promise<string> {
@@ -31,12 +34,12 @@ export class SyncService {
       throw new BadRequestException('Spotify is not connected');
     }
 
-    const job = await this.syncQueue.add('spotify-sync', {
-      userId,
-      playlistId,
-    });
+    const jobId = this.jobQueue.createJob('spotify-sync', { userId, playlistId });
+    
+    // Fire and forget
+    this.spotifyProcessor.process(jobId, { userId, playlistId }).catch(() => {});
 
-    return job.id as string;
+    return jobId;
   }
 
   async enqueueYouTubeSync(userId: string, playlistId: string): Promise<string> {
@@ -60,16 +63,16 @@ export class SyncService {
       throw new BadRequestException('YouTube is not connected');
     }
 
-    const job = await this.syncQueue.add('youtube-sync', {
-      userId,
-      playlistId,
-    });
+    const jobId = this.jobQueue.createJob('youtube-sync', { userId, playlistId });
 
-    return job.id as string;
+    // Fire and forget
+    this.youtubeProcessor.process(jobId, { userId, playlistId }).catch(() => {});
+
+    return jobId;
   }
 
   async getJobStatus(jobId: string, userId: string) {
-    const job = await this.syncQueue.getJob(jobId);
+    const job = this.jobQueue.getJob<{ userId: string }>(jobId);
     if (!job) {
       throw new NotFoundException('Job not found');
     }
@@ -78,15 +81,11 @@ export class SyncService {
       throw new ForbiddenException('Not your job');
     }
 
-    const state = await job.getState();
-    const progress = job.progress;
-    const result = job.returnvalue;
-
     return {
       id: job.id,
-      state,
-      progress,
-      result,
+      state: job.state,
+      progress: job.progress,
+      result: job.returnvalue,
       failedReason: job.failedReason,
     };
   }

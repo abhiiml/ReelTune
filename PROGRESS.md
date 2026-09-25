@@ -126,6 +126,7 @@
   - Leveraged existing generic `SyncProgressModal` for seamless progress bar UX
 
 ## Decisions Made (Not in SKILLS.md)
+- **Database Baseline Established (Sep 2026)**: Verified existing Supabase schema using `prisma migrate diff`, generated a baseline migration (`20260925_init`), and safely marked it applied without data loss. Render production deploys will now use `prisma migrate deploy`.
 - **NativeWind v4 Babel Config**: Removed `nativewind/babel` from `babel.config.js` as NativeWind v4 relies entirely on the Metro bundler (`withNativeWind`).
 - **Tailwind Version**: Downgraded to `tailwindcss@^3.3.2` because NativeWind v4 threw errors with Tailwind CSS v4.
 - **Expo Router Strict Hrefs**: Used `as any` for `href` casting in generic link components (`ExternalLink.tsx`) to satisfy Expo Router's stringent route enum typing.
@@ -180,4 +181,13 @@
 - ✅ **FIX 1 — Unmock Spotify Search**: Swapped mock Spotify tracks for real Client Credentials OAuth + REST search (`https://api.spotify.com/v1/search`) with in-memory token caching and auto-refresh. Returns `[]` gracefully with a warning if credentials are unset.
 - ✅ **FIX 2 — Fix nixpacks.toml**: Cleaned invalid `"..."` placeholder from `nixPkgs = ["python3"]` to ensure Railway builds cleanly.
 - ✅ **FIX 3 — Update .env.example & Token Encryption Key**: Replaced `apps/api/.env.example` with the complete variable template and migrated `process.env.ENCRYPTION_KEY` to `process.env.TOKEN_ENCRYPTION_KEY` across the codebase with backwards-compatible fallback.
+### TASK-901-B: Render Migration ($0 Architecture)
+- **Objective**: Transitioned from Railway + Redis to a completely $0 architecture using Render Free Tier.
+- **Prisma Baseline**: Safely established a Prisma 5.22 migration baseline (`20260925_init`) from the existing Supabase production database using `prisma migrate diff` and `prisma migrate resolve --applied`. This allows `prisma migrate deploy` to safely execute on Render startup.
+- **Redis & BullMQ Removal**: Completely removed `@nestjs/bullmq`, `ioredis`, and all BullMQ decorators. Redis is no longer required for the MVP.
+- **InMemory Queue**: Built a generic `JobQueueService` to handle Spotify/YouTube background syncs entirely in-memory. This preserves the existing job generation, status polling, and state management API contracts so the mobile app requires zero changes.
+- **Render Configuration**: Documented the required Build and Start commands, along with stripped-down environment variable requirements (removed `REDIS_URL`).
+- **Status**: The backend has passed all typechecks, linting, and local health checks. It is fully ready for Render deployment.
 
+### Current / Next Step
+- **TASK-902 (EAS Mobile Build)**: We are currently paused on the mobile build. Next step is to verify the live Render deployment (`https://<render-url>/api/v1/health`), update `EXPO_PUBLIC_API_URL`, and then proceed with Expo Application Services (EAS) for iOS/Android builds.

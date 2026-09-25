@@ -8,6 +8,7 @@ module.exports = tseslint.config(
   {
     ignores: ['**/*.spec.ts', 'test/**'],
   },
+  // @ts-expect-error - TS language server struggles inferring ConfigArray from CJS require
   ...baseConfig,
   {
     languageOptions: {

@@ -85,6 +85,7 @@ export default function RegisterScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -165,7 +166,7 @@ export default function RegisterScreen() {
         {/* Login link */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account?</Text>
-          <Pressable onPress={() => router.back()}>
+          <Pressable onPress={() => router.replace('/(auth)/login')}>
             <Text style={[styles.footerText, styles.footerLink]}> Sign In</Text>
           </Pressable>
         </View>

@@ -24,19 +24,11 @@ export function Toast({ message, type, onHide, duration = 3000 }: ToastProps) {
     return () => clearTimeout(timer);
   }, [duration, onHide]);
 
-  const getBackgroundColor = () => {
-    switch (type) {
-      case 'error': return Colors.error;
-      case 'info': return Colors.accent;
-      default: return Colors.success;
-    }
-  };
-
   const IconComponent = () => {
     switch (type) {
-      case 'error': return <AlertCircle size={20} color={Colors.bgPrimary} />;
-      case 'info': return <Info size={20} color={Colors.bgPrimary} />;
-      default: return <CheckCircle2 size={20} color={Colors.bgPrimary} />;
+      case 'error': return <AlertCircle size={20} color={Colors.error} />;
+      case 'info': return <Info size={20} color={Colors.accent} />;
+      default: return <CheckCircle2 size={20} color={Colors.success} />;
     }
   };
 
@@ -46,11 +38,11 @@ export function Toast({ message, type, onHide, duration = 3000 }: ToastProps) {
       exiting={FadeOutUp.duration(300)}
       style={[
         styles.container, 
-        { top: insets.top + Spacing.md, backgroundColor: getBackgroundColor() }
+        { top: insets.top + Spacing.md }
       ]}
     >
       <IconComponent />
-      <Text style={styles.text}>{message}</Text>
+      <Text style={styles.text}>{message || 'An error occurred'}</Text>
     </Animated.View>
   );
 }
@@ -60,6 +52,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: Spacing.lg,
     right: Spacing.lg,
+    backgroundColor: Colors.cardElevated,
     borderRadius: Radius.card,
     padding: Spacing.md,
     flexDirection: 'row',
@@ -76,7 +69,7 @@ const styles = StyleSheet.create({
   text: {
     ...Typography.body,
     fontFamily: 'Manrope_600SemiBold',
-    color: Colors.bgPrimary,
+    color: Colors.textPrimary,
     flex: 1,
   },
 });

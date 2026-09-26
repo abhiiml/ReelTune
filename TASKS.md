@@ -314,12 +314,11 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 - ✅ Done when: API is live at a public URL
 
 ### TASK-902: Mobile TestFlight/Play Console Build
-- [ ] EAS authentication is NOT completed yet.
-- [ ] `eas whoami` currently reports `Not logged in`.
-- [ ] `eas login` requires my interactive credentials.
+- [x] EAS authentication is completed.
+- [x] `eas whoami` successfully authenticated.
 - [x] Configure `eas.json` (development, preview, production profiles)
-- [ ] `eas build --platform ios` (TestFlight)
-- [ ] `eas build --platform android` (Play Console internal testing)
+- [ ] `eas build --platform ios` (TestFlight) - deferred
+- [x] `eas build --platform android` (Play Console internal testing)
 - ✅ Done when: App installs on a real device from TestFlight or Play Console
 
 ### TASK-903: Web App Deployment (Lightweight)

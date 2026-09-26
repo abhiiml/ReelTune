@@ -207,10 +207,7 @@
   - Unified duplicate detection behavior across `song/[id]` and `save` screens.
 
 ### Current / Next Step
-- **TASK-902 (EAS Mobile Build)**:
-  - EAS authentication is NOT completed yet.
-  - `eas whoami` currently reports `Not logged in`.
-  - `eas login` requires my interactive credentials.
-  - **Tomorrow**: resume EXACTLY from this point: TASK-902 → complete EAS login → verify `eas whoami` → verify EAS configuration → build mobile app → fix genuine build issues → verify → update TASKS.md + PROGRESS.md → continue to the next incomplete TASK.
-
-
+- ✅ **TASK-902 (EAS Mobile Build)**:
+  - EAS authentication completed.
+  - Successfully debugged Metro bundler's hidden resolution error (by patching `metro` to stop swallowing initialization errors) and added `babel-preset-expo` to `devDependencies`.
+  - Re-ran the build successfully. The app successfully compiled via Android EAS.

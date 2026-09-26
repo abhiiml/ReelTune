@@ -8,6 +8,8 @@ import { useIdentifyReel } from '../../hooks/useIdentifyReel';
 import { useSaveSong } from '../../hooks/useSaveSong';
 import type { IdentifyReelResponse } from '../../hooks/useIdentifyReel';
 import { IdentificationResultModal } from '../../components/ui/IdentificationResultModal';
+import { DuplicateSaveModal } from '../../components/ui/DuplicateSaveModal';
+import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
 
 export default function SaveScreen() {
   const [url, setUrl] = useState('');
@@ -15,6 +17,10 @@ export default function SaveScreen() {
   const { mutate: saveSong } = useSaveSong();
   const [modalVisible, setModalVisible] = useState(false);
   const [result, setResult] = useState<IdentifyReelResponse | null>(null);
+  const [duplicateTitle, setDuplicateTitle] = useState('');
+  const [duplicateSongId, setDuplicateSongId] = useState('');
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
   const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntent();
 
   useEffect(() => {
@@ -55,7 +61,9 @@ export default function SaveScreen() {
     saveSong(songId, {
       onSuccess: (data) => {
         if (data.alreadySaved) {
-          Alert.alert('Library', `"${title}" is already in your library!`);
+          setDuplicateTitle(title);
+          setDuplicateSongId(songId);
+          setShowDuplicateModal(true);
         } else {
           Alert.alert('Success', `Saved "${title}" by ${artist} to your library!`);
         }
@@ -106,6 +114,24 @@ export default function SaveScreen() {
         onClose={() => setModalVisible(false)}
         onAddPlaylist={handleAddPlaylist}
       />
+
+      <DuplicateSaveModal
+        visible={showDuplicateModal}
+        title={duplicateTitle}
+        onClose={() => setShowDuplicateModal(false)}
+        onAddToPlaylist={() => setShowAddToPlaylist(true)}
+      />
+
+      {duplicateSongId ? (
+        <AddToPlaylistModal
+          visible={showAddToPlaylist}
+          songId={duplicateSongId}
+          onClose={() => setShowAddToPlaylist(false)}
+          onSuccess={(playlistName) => {
+            Alert.alert('Success', `Added to ${playlistName}`);
+          }}
+        />
+      ) : null}
     </View>
   );
 }

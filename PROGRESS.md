@@ -189,5 +189,28 @@
 - **Render Configuration**: Documented the required Build and Start commands, along with stripped-down environment variable requirements (removed `REDIS_URL`).
 - **Status**: The backend has passed all typechecks, linting, and local health checks. It is fully ready for Render deployment.
 
+- ✅ **TASK-903: Web App Deployment (Lightweight)**
+  - Next.js 15 app built in `apps/web` with TypeScript, Tailwind CSS, and Lucide React.
+  - Implemented `/auth/callback/spotify` and `/auth/callback/youtube` routes that receive OAuth codes/tokens and redirect seamlessly back to mobile app deep links (`reeltune://settings/spotify` and `reeltune://settings/youtube`).
+  - Implemented responsive landing page (`/`) featuring an interactive Reel url test form, feature cards, 3-step workflow, and platform download buttons.
+  - Implemented shareable playlist preview page (`/playlist/[id]`) with responsive layout, track metadata list, Spotify deep links, and mobile app deep link button.
+  - Verified `pnpm --filter web typecheck` and `pnpm --filter web build` pass with zero errors.
+
+- ✅ **TASK-F02: Shareable Playlist Links (Public Playlists with Web Preview)**
+  - Added public API endpoint `GET /api/v1/playlists/public/:id` in NestJS `PlaylistsController` & `PlaylistsService` (no JWT auth required, returns 403 if playlist `isPrivate: true`).
+  - Connected `apps/web/src/app/playlist/[id]/page.tsx` to dynamically fetch from public API endpoint with 30s ISR revalidation and graceful handling for private/not-found states.
+  - Added "Share Playlist" action button in mobile `PlaylistDetailsScreen` using native `Share.share` API to copy/share `https://reeltune.app/playlist/:id`.
+  - Verified across all packages (`api`, `web`, `mobile`, `types`) with clean typechecks and production builds.
+
+- ✅ **TASK-F03: Duplicate detection UI improvements**
+  - Extracted duplicate modal UI to a shared `DuplicateSaveModal` component.
+  - Unified duplicate detection behavior across `song/[id]` and `save` screens.
+
 ### Current / Next Step
-- **TASK-902 (EAS Mobile Build)**: We are currently paused on the mobile build. Next step is to verify the live Render deployment (`https://<render-url>/api/v1/health`), update `EXPO_PUBLIC_API_URL`, and then proceed with Expo Application Services (EAS) for iOS/Android builds.
+- **TASK-902 (EAS Mobile Build)**:
+  - EAS authentication is NOT completed yet.
+  - `eas whoami` currently reports `Not logged in`.
+  - `eas login` requires my interactive credentials.
+  - **Tomorrow**: resume EXACTLY from this point: TASK-902 → complete EAS login → verify `eas whoami` → verify EAS configuration → build mobile app → fix genuine build issues → verify → update TASKS.md + PROGRESS.md → continue to the next incomplete TASK.
+
+

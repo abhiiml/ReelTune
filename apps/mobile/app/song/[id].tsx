@@ -7,6 +7,7 @@ import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { useSong } from '../../hooks/useSong';
 import { useSaveSong } from '../../hooks/useSaveSong';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
+import { DuplicateSaveModal } from '../../components/ui/DuplicateSaveModal';
 import { useToastStore } from '../../store/useToastStore';
 import { Heart, ExternalLink, ChevronLeft, X } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
@@ -105,43 +106,11 @@ export default function SongDetailsScreen() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Duplicate Modal */}
-      <Modal
+      <DuplicateSaveModal
         visible={showDuplicateModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowDuplicateModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Already Saved</Text>
-              <Pressable onPress={() => setShowDuplicateModal(false)} style={styles.modalClose}>
-                <X size={20} color={Colors.textSecondary} />
-              </Pressable>
-            </View>
-            <Text style={styles.modalBody}>
-              This song is already in your library. Add to another playlist?
-            </Text>
-            {/* Stub for Phase 4 playlist logic */}
-            <Pressable 
-              style={[styles.actionButton, styles.primaryAction, { marginTop: Spacing.md }]} 
-              onPress={() => {
-                setShowDuplicateModal(false);
-                setShowAddToPlaylist(true);
-              }}
-            >
-              <Text style={styles.primaryActionText}>Add to Playlist</Text>
-            </Pressable>
-            
-            <Pressable 
-              style={[styles.actionButton, styles.secondaryAction, { marginTop: Spacing.md }]} 
-              onPress={() => setShowDuplicateModal(false)}
-            >
-              <Text style={styles.secondaryActionText}>Cancel</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setShowDuplicateModal(false)}
+        onAddToPlaylist={() => setShowAddToPlaylist(true)}
+      />
 
       {/* Add To Playlist Modal */}
       <AddToPlaylistModal

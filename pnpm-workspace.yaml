@@ -14,3 +14,6 @@ allowBuilds:
   youtube-dl-exec: true
   '@sentry/cli': true
   '@sentry/node-cpu-profiler': true
+
+patchedDependencies:
+  metro@0.84.5: patches/metro@0.84.5.patch

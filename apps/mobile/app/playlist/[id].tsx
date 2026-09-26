@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -10,7 +10,7 @@ import { useReorderPlaylistSongs } from '../../hooks/useReorderPlaylistSongs';
 import { SongRow } from '../../components/ui/SongRow';
 import { useToastStore } from '../../store/useToastStore';
 import { SyncProgressModal } from '../../components/ui/SyncProgressModal';
-import { ArrowLeft, Lock, Music, Trash2, ArrowUp, ArrowDown, ExternalLink, X, RefreshCw } from 'lucide-react-native';
+import { ArrowLeft, Lock, Music, Trash2, ArrowUp, ArrowDown, ExternalLink, X, RefreshCw, Share2 } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { useSyncPlaylistToSpotify } from '../../hooks/useSyncPlaylistToSpotify';
@@ -176,16 +176,36 @@ export default function PlaylistDetailsScreen() {
               {songs.length} {songs.length === 1 ? 'song' : 'songs'}
             </Text>
 
-            {songs.length > 0 && (
-              <Pressable 
-                style={styles.syncButton} 
-                onPress={() => setShowSyncOptions(true)}
-                disabled={isSyncingSpotify || isSyncingYouTube}
+            <View style={styles.actionButtonsRow}>
+              {songs.length > 0 && (
+                <Pressable 
+                  style={styles.syncButton} 
+                  onPress={() => setShowSyncOptions(true)}
+                  disabled={isSyncingSpotify || isSyncingYouTube}
+                >
+                  <RefreshCw size={16} color="#fff" />
+                  <Text style={styles.syncButtonText}>Sync Playlist</Text>
+                </Pressable>
+              )}
+              <Pressable
+                style={styles.shareButton}
+                onPress={async () => {
+                  const webUrl = `https://reeltune.app/playlist/${playlist.id}`;
+                  try {
+                    await Share.share({
+                      title: playlist.name,
+                      message: `Check out my playlist "${playlist.name}" on ReelTune: ${webUrl}`,
+                      url: webUrl,
+                    });
+                  } catch {
+                    showToast('Could not share playlist', 'error');
+                  }
+                }}
               >
-                <RefreshCw size={16} color="#fff" />
-                <Text style={styles.syncButtonText}>Sync Playlist</Text>
+                <Share2 size={16} color={Colors.textPrimary} />
+                <Text style={styles.shareButtonText}>Share</Text>
               </Pressable>
-            )}
+            </View>
           </View>
         }
         ListEmptyComponent={
@@ -356,21 +376,43 @@ const styles = StyleSheet.create({
     ...Typography.small,
     color: Colors.accent,
   },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
   syncButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.spotify,
     paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
     borderRadius: 9999,
-    marginTop: Spacing.md,
-    gap: Spacing.sm,
+    gap: Spacing.xs,
   },
   syncButtonText: {
     ...Typography.body,
     color: '#fff',
     fontFamily: 'Manrope_700Bold',
+  },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.cardElevated,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: 9999,
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.cardElevated,
+  },
+  shareButtonText: {
+    ...Typography.body,
+    color: Colors.textPrimary,
+    fontFamily: 'Manrope_600SemiBold',
   },
   listContainer: {
     paddingBottom: Spacing.xl,

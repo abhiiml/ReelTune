@@ -7,7 +7,6 @@ import { View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SecureStore from 'expo-secure-store';
 import * as Network from 'expo-network';
-import * as Sentry from '@sentry/react-native';
 import {
   useFonts,
   Manrope_400Regular,
@@ -23,11 +22,6 @@ import { useToastStore } from '../store/useToastStore';
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
 import { ToastManager } from '../components/ui/ToastManager';
 import { OfflineBanner } from '../components/ui/OfflineBanner';
-
-Sentry.init({
-  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || '',
-  tracesSampleRate: 1.0,
-});
 
 // Keep splash visible while loading
 SplashScreen.preventAutoHideAsync();
@@ -134,4 +128,4 @@ function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default RootLayout;

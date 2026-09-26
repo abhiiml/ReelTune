@@ -314,17 +314,20 @@ Mark a task done ✅ only when it passes its acceptance criteria.
 - ✅ Done when: API is live at a public URL
 
 ### TASK-902: Mobile TestFlight/Play Console Build
-- [ ] Set up Expo EAS account
+- [ ] EAS authentication is NOT completed yet.
+- [ ] `eas whoami` currently reports `Not logged in`.
+- [ ] `eas login` requires my interactive credentials.
 - [x] Configure `eas.json` (development, preview, production profiles)
 - [ ] `eas build --platform ios` (TestFlight)
 - [ ] `eas build --platform android` (Play Console internal testing)
 - ✅ Done when: App installs on a real device from TestFlight or Play Console
 
 ### TASK-903: Web App Deployment (Lightweight)
-- [ ] Deploy Next.js web app to Vercel
-- [ ] Web handles: Spotify OAuth callback, YouTube OAuth callback (redirect to mobile deep link)
-- [ ] Landing page / playlist share links work on web
+- [x] Next.js web app created & built (`apps/web`)
+- [x] Web handles: Spotify OAuth callback, YouTube OAuth callback (redirect to mobile deep link)
+- [x] Landing page / playlist share links work on web
 - ✅ Done when: OAuth flow works on real device via web redirect
+
 
 ---
 
@@ -344,8 +347,8 @@ Run this test case end-to-end before calling MVP done:
 
 ## Future (Post-MVP Backlog)
 - TASK-F01: For non named songs use ai to analyse and find the song
-- TASK-F02: Shareable playlist links (public playlists with web preview)
-- TASK-F03: Duplicate detection UI improvements
+- [x] TASK-F02: Shareable playlist links (public playlists with web preview)
+- [x] TASK-F03: Duplicate detection UI improvements
 - TASK-F04: AI Mood Classification (auto-tag songs: Chill, Energy, Romantic, etc.)
 - TASK-F05: Smart playlist suggestions ("You've saved 12 similar songs. Create a playlist?")
 - TASK-F06: Apple Music integration

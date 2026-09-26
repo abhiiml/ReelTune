@@ -6,26 +6,34 @@ import { UpdatePlaylistDto } from './dto/update-playlist.dto.js';
 import { AddSongDto } from './dto/add-song.dto.js';
 import { ReorderSongsDto } from './dto/reorder-songs.dto.js';
 
-@UseGuards(SupabaseAuthGuard)
 @Controller('playlists')
 export class PlaylistsController {
   constructor(private readonly playlistsService: PlaylistsService) {}
 
+  @Get('public/:id')
+  async getPublicPlaylist(@Param('id') id: string) {
+    return this.playlistsService.getPublicPlaylist(id);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
   @Post()
   async createPlaylist(@Req() req: { user: { id: string } }, @Body() dto: CreatePlaylistDto) {
     return this.playlistsService.createPlaylist(req.user.id, dto);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Get()
   async getPlaylists(@Req() req: { user: { id: string } }) {
     return this.playlistsService.getPlaylists(req.user.id);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Get(':id')
   async getPlaylist(@Req() req: { user: { id: string } }, @Param('id') id: string) {
     return this.playlistsService.getPlaylist(req.user.id, id);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Patch(':id')
   async updatePlaylist(
     @Req() req: { user: { id: string } },
@@ -35,11 +43,13 @@ export class PlaylistsController {
     return this.playlistsService.updatePlaylist(req.user.id, id, dto);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Delete(':id')
   async deletePlaylist(@Req() req: { user: { id: string } }, @Param('id') id: string) {
     return this.playlistsService.deletePlaylist(req.user.id, id);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Post(':id/songs')
   async addSongToPlaylist(
     @Req() req: { user: { id: string } },
@@ -49,6 +59,7 @@ export class PlaylistsController {
     return this.playlistsService.addSongToPlaylist(req.user.id, playlistId, dto);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Delete(':id/songs/:songId')
   async removeSongFromPlaylist(
     @Req() req: { user: { id: string } },
@@ -58,6 +69,7 @@ export class PlaylistsController {
     return this.playlistsService.removeSongFromPlaylist(req.user.id, playlistId, songId);
   }
 
+  @UseGuards(SupabaseAuthGuard)
   @Patch(':id/reorder')
   async reorderSongs(
     @Req() req: { user: { id: string } },

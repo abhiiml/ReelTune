@@ -53,6 +53,37 @@ export class PlaylistsService {
     return playlist;
   }
 
+  async getPublicPlaylist(id: string) {
+    const playlist = await this.prisma.playlist.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: { displayName: true },
+        },
+        songs: {
+          orderBy: { position: 'asc' },
+          include: { song: true },
+        },
+      },
+    });
+
+    if (!playlist) throw new HttpException('Playlist not found', HttpStatus.NOT_FOUND);
+    if (playlist.isPrivate) {
+      throw new HttpException('This playlist is private', HttpStatus.FORBIDDEN);
+    }
+
+    return {
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description,
+      isPrivate: playlist.isPrivate,
+      creator: playlist.user?.displayName || 'ReelTune Curator',
+      createdAt: playlist.createdAt,
+      updatedAt: playlist.updatedAt,
+      songs: playlist.songs.map((ps) => ps.song),
+    };
+  }
+
   async updatePlaylist(userId: string, id: string, dto: UpdatePlaylistDto) {
     const playlist = await this.prisma.playlist.findUnique({ where: { id } });
     if (!playlist) throw new HttpException('Playlist not found', HttpStatus.NOT_FOUND);

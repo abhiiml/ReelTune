@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SpotifyService } from '../integrations/spotify/spotify.service.js';
 import { Song } from '@reeltune/types';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SongsService {
@@ -156,7 +157,7 @@ export class SongsService {
         metadata.tags = tags;
         await this.prisma.song.update({
           where: { id: songId },
-          data: { metadata }
+          data: { metadata: metadata as Prisma.InputJsonValue }
         });
         this.logger.log(`Successfully classified mood for "${song.title}": ${tags.join(', ')}`);
       }

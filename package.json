@@ -23,10 +23,5 @@
     "youtube-dl-exec",
     "@sentry/cli",
     "@sentry/node-cpu-profiler"
-  ],
-  "pnpm": {
-    "patchedDependencies": {
-      "metro@0.84.5": "patches/metro@0.84.5.patch"
-    }
-  }
+  ]
 }

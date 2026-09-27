@@ -1,0 +1,12 @@
+diff --git a/src/Bundler.js b/src/Bundler.js
+index 2b64d413e23b3c857393d10a1f72d5839015cf44..5a89c121f480cc6006e3f720ae34d2300271a13c 100644
+--- a/src/Bundler.js
++++ b/src/Bundler.js
+@@ -36,6 +36,7 @@ class Bundler {
+           type: "transformer_load_failed",
+           error,
+         });
++        throw error;
+       });
+   }
+   getWatcher() {

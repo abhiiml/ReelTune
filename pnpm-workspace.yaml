@@ -17,3 +17,5 @@ allowBuilds:
   '@google/genai': true
   'protobufjs': true
 
+patchedDependencies:
+  metro@0.84.6: patches/metro@0.84.6.patch

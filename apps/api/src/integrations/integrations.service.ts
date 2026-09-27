@@ -348,5 +348,61 @@ export class IntegrationsService {
 
     return this.decryptToken(account.accessToken);
   }
+
+  async connectAppleMusic(userId: string, musicUserToken: string) {
+    if (!process.env.APPLE_MUSIC_DEVELOPER_TOKEN) {
+      throw new BadRequestException('Apple Music integration is not configured on the server.');
+    }
+
+    const encryptedToken = this.encryptToken(musicUserToken);
+
+    await this.prisma.connectedAccount.upsert({
+      where: {
+        userId_provider: {
+          userId,
+          provider: 'apple-music'
+        }
+      },
+      update: {
+        accessToken: encryptedToken,
+      },
+      create: {
+        userId,
+        provider: 'apple-music',
+        providerAccountId: 'Apple Music User',
+        accessToken: encryptedToken,
+      }
+    });
+  }
+
+  async disconnectAppleMusic(userId: string) {
+    await this.prisma.connectedAccount.deleteMany({
+      where: {
+        userId,
+        provider: 'apple-music'
+      }
+    });
+  }
+
+  async getDecryptedAppleMusicToken(userId: string): Promise<string> {
+    const account = await this.prisma.connectedAccount.findUnique({
+      where: { userId_provider: { userId, provider: 'apple-music' } }
+    });
+
+    if (!account || !account.accessToken) {
+      throw new BadRequestException('Apple Music not connected');
+    }
+
+    return this.decryptToken(account.accessToken);
+  }
+
+  async disconnectJioSaavn(userId: string) {
+    await this.prisma.connectedAccount.deleteMany({
+      where: {
+        userId,
+        provider: 'jiosaavn'
+      }
+    });
+  }
 }
 

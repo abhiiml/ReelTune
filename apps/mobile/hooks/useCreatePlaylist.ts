@@ -5,6 +5,7 @@ interface CreatePlaylistVariables {
   name: string;
   description?: string;
   isPrivate?: boolean;
+  songIds?: string[];
 }
 
 interface PlaylistResponse {

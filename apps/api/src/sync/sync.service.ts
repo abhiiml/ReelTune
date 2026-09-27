@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { JobQueueService } from './job-queue.service.js';
 import { SpotifySyncProcessor } from './spotify-sync.processor.js';
 import { YoutubeSyncProcessor } from './youtube-sync.processor.js';
+import { AppleMusicSyncProcessor } from './apple-music-sync.processor.js';
+import { JioSaavnSyncProcessor } from './jiosaavn-sync.processor.js';
 
 @Injectable()
 export class SyncService {
@@ -11,6 +13,8 @@ export class SyncService {
     private prisma: PrismaService,
     private spotifyProcessor: SpotifySyncProcessor,
     private youtubeProcessor: YoutubeSyncProcessor,
+    private appleMusicProcessor: AppleMusicSyncProcessor,
+    private jiosaavnProcessor: JioSaavnSyncProcessor,
   ) {}
 
   async enqueueSpotifySync(userId: string, playlistId: string): Promise<string> {
@@ -69,6 +73,52 @@ export class SyncService {
     this.youtubeProcessor.process(jobId, { userId, playlistId }).catch(() => {});
 
     return jobId;
+  }
+
+  async enqueueAppleMusicSync(userId: string, playlistId: string): Promise<string> {
+    const playlist = await this.prisma.playlist.findUnique({
+      where: { id: playlistId },
+    });
+
+    if (!playlist) {
+      throw new NotFoundException('Playlist not found');
+    }
+
+    if (playlist.userId !== userId) {
+      throw new ForbiddenException('Not your playlist');
+    }
+
+    const connectedAccount = await this.prisma.connectedAccount.findUnique({
+      where: { userId_provider: { userId, provider: 'apple-music' } },
+    });
+
+    if (!connectedAccount) {
+      throw new BadRequestException('Apple Music is not connected');
+    }
+
+    const jobId = this.jobQueue.createJob('apple-music-sync', { userId, playlistId });
+
+    // Fire and forget
+    this.appleMusicProcessor.process(jobId, { userId, playlistId }).catch(() => {});
+
+    return jobId;
+  }
+
+  async enqueueJioSaavnSync(userId: string, playlistId: string): Promise<string> {
+    const playlist = await this.prisma.playlist.findUnique({
+      where: { id: playlistId },
+    });
+
+    if (!playlist) {
+      throw new NotFoundException('Playlist not found');
+    }
+
+    if (playlist.userId !== userId) {
+      throw new ForbiddenException('Not your playlist');
+    }
+
+    // Immediately throw since it's not supported
+    throw new BadRequestException('JioSaavn sync is unavailable due to lack of a public API');
   }
 
   async getJobStatus(jobId: string, userId: string) {

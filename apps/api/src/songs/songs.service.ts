@@ -107,10 +107,62 @@ export class SongsService {
       },
     });
 
+    // Fire and forget AI mood classification.
+    // IMPORTANT: On Render Free tier, this best-effort background task 
+    // may be lost if the server sleeps or restarts before completion.
+    // We intentionally avoid Redis/BullMQ to keep the architecture $0.
+    this.classifyMood(songId).catch((e) => {
+      this.logger.error(`Background mood classification error: ${e.message}`);
+    });
+
     return {
       alreadySaved: false,
       savedSong,
     };
+  }
+
+  async classifyMood(songId: string) {
+    const song = await this.prisma.song.findUnique({ where: { id: songId } });
+    if (!song) return;
+    
+    const metadata = (song.metadata as Record<string, unknown>) || {};
+    if (metadata.tags) return; // Already classified
+
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      this.logger.warn('GEMINI_API_KEY not set. Skipping AI mood classification.');
+      return;
+    }
+
+    try {
+      this.logger.log(`Attempting to classify mood for song: ${song.title}`);
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+      
+      const prompt = `Classify the mood of the song "${song.title}" by "${song.artists.join(', ')}". Choose exactly 2 to 3 tags from this exact list: [Chill, Energy, Romantic, Focus, Workout, Sad, Happy, Party]. Return ONLY a JSON array of strings (e.g. ["Chill", "Focus"]). Do not return markdown.`;
+      
+      const response = await ai.models.generateContent({
+         model: 'gemini-2.5-flash',
+         contents: prompt
+      });
+      
+      const text = response.text;
+      if (!text) return;
+      
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const tags = JSON.parse(cleaned);
+      
+      if (Array.isArray(tags)) {
+        metadata.tags = tags;
+        await this.prisma.song.update({
+          where: { id: songId },
+          data: { metadata }
+        });
+        this.logger.log(`Successfully classified mood for "${song.title}": ${tags.join(', ')}`);
+      }
+    } catch (error: unknown) {
+      this.logger.error(`Mood classification failed for "${song?.title}": ${error instanceof Error ? error.message : 'Unknown'}`);
+    }
   }
 
   async unsaveSong(userId: string, songId: string) {

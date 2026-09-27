@@ -51,10 +51,22 @@ export interface PlaylistSong {
 export interface ConnectedAccount {
   id: string;
   userId: string;
-  provider: 'spotify' | 'youtube';
+  provider: 'spotify' | 'youtube' | 'apple-music' | 'jiosaavn';
   providerAccountId: string;
   accessToken: string; // Encrypted in DB
   refreshToken: string | null; // Encrypted in DB
   expiresAt: Date | null;
   connectedAt: Date;
+}
+
+export interface Follow {
+  followerId: string;
+  followingId: string;
+  createdAt: Date;
+}
+
+export interface PlaylistLike {
+  userId: string;
+  playlistId: string;
+  createdAt: Date;
 }

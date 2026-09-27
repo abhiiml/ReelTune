@@ -78,4 +78,21 @@ export class PlaylistsController {
   ) {
     return this.playlistsService.reorderSongs(req.user.id, playlistId, dto);
   }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Post(':id/like')
+  async likePlaylist(@Req() req: { user: { id: string } }, @Param('id') playlistId: string) {
+    return this.playlistsService.likePlaylist(req.user.id, playlistId);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Delete(':id/like')
+  async unlikePlaylist(@Req() req: { user: { id: string } }, @Param('id') playlistId: string) {
+    return this.playlistsService.unlikePlaylist(req.user.id, playlistId);
+  }
+
+  @Get(':id/likes')
+  async getPlaylistLikes(@Param('id') playlistId: string) {
+    return this.playlistsService.getPlaylistLikes(playlistId);
+  }
 }

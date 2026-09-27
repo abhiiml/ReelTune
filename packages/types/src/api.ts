@@ -37,3 +37,10 @@ export interface SyncResult {
   unavailable: number;
   errors?: string[];
 }
+
+export interface PlaylistSuggestion {
+  tag: string;
+  title: string;
+  description: string;
+  songIds: string[];
+}

@@ -18,6 +18,31 @@ export class PlaylistsService {
         isPrivate: dto.isPrivate ?? false,
       },
     });
+
+    if (dto.songIds && dto.songIds.length > 0) {
+      // Security: ensure the user actually has these songs in their library
+      const userSavedSongs = await this.prisma.savedSong.findMany({
+        where: {
+          userId,
+          songId: { in: dto.songIds },
+        },
+        select: { songId: true },
+      });
+      const validSongIds = new Set(userSavedSongs.map((s: { songId: string }) => s.songId));
+      const filteredSongIds = dto.songIds.filter((id) => validSongIds.has(id));
+
+      if (filteredSongIds.length > 0) {
+        await this.prisma.playlistSong.createMany({
+          data: filteredSongIds.map((songId, index) => ({
+            playlistId: playlist.id,
+            songId,
+            position: index,
+          })),
+          skipDuplicates: true,
+        });
+      }
+    }
+
     return playlist;
   }
 
@@ -64,6 +89,9 @@ export class PlaylistsService {
           orderBy: { position: 'asc' },
           include: { song: true },
         },
+        _count: {
+          select: { likes: true }
+        }
       },
     });
 
@@ -80,7 +108,8 @@ export class PlaylistsService {
       creator: playlist.user?.displayName || 'ReelTune Curator',
       createdAt: playlist.createdAt,
       updatedAt: playlist.updatedAt,
-      songs: playlist.songs.map((ps) => ps.song),
+      songs: playlist.songs.map((ps: { song: unknown }) => ps.song),
+      likesCount: playlist._count.likes,
     };
   }
 
@@ -172,6 +201,66 @@ export class PlaylistsService {
     );
 
     return { success: true };
+  }
+
+  async likePlaylist(userId: string, playlistId: string) {
+    const playlist = await this.prisma.playlist.findUnique({ where: { id: playlistId } });
+    if (!playlist) throw new HttpException('Playlist not found', HttpStatus.NOT_FOUND);
+    if (playlist.isPrivate && playlist.userId !== userId) {
+      throw new HttpException('Cannot like private playlists', HttpStatus.FORBIDDEN);
+    }
+    
+    try {
+      await this.prisma.playlistLike.create({
+        data: {
+          userId,
+          playlistId,
+        }
+      });
+      return { success: true };
+    } catch (e: any) {
+      if (e?.code === 'P2002') return { success: true, alreadyLiked: true };
+      throw e;
+    }
+  }
+
+  async unlikePlaylist(userId: string, playlistId: string) {
+    try {
+      await this.prisma.playlistLike.delete({
+        where: {
+          userId_playlistId: {
+            userId,
+            playlistId
+          }
+        }
+      });
+      return { success: true };
+    } catch {
+      return { success: true };
+    }
+  }
+
+  async getPlaylistLikes(playlistId: string) {
+    const playlist = await this.prisma.playlist.findUnique({ where: { id: playlistId } });
+    if (!playlist) throw new HttpException('Playlist not found', HttpStatus.NOT_FOUND);
+    if (playlist.isPrivate) {
+      throw new HttpException('Cannot view likes for private playlists', HttpStatus.FORBIDDEN);
+    }
+
+    const likes = await this.prisma.playlistLike.findMany({
+      where: { playlistId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
+          }
+        }
+      }
+    });
+
+    return likes.map(l => l.user);
   }
 }
 

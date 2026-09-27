@@ -12,4 +12,8 @@ export class CreatePlaylistDto {
   @IsBoolean()
   @IsOptional()
   isPrivate?: boolean;
+
+  @IsString({ each: true })
+  @IsOptional()
+  songIds?: string[];
 }

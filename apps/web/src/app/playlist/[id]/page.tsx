@@ -1,4 +1,4 @@
-import { Music, Play, ExternalLink, Share2, Sparkles, Lock, AlertCircle } from 'lucide-react';
+import { Music, Play, ExternalLink, Share2, Sparkles, Lock, AlertCircle, Heart } from 'lucide-react';
 import Link from 'next/link';
 
 interface PlaylistPageProps {
@@ -23,6 +23,7 @@ interface PublicPlaylistData {
   description?: string;
   creator?: string;
   isPrivate?: boolean;
+  likesCount?: number;
   songs: ApiSong[];
 }
 
@@ -189,6 +190,15 @@ export default async function PlaylistPreviewPage({ params }: PlaylistPageProps)
                   </span>
                   <span>•</span>
                   <span>{playlist.songs.length} tracks</span>
+                  {playlist.likesCount !== undefined && (
+                    <>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-3.5 h-3.5" />
+                        {playlist.likesCount} {playlist.likesCount === 1 ? 'like' : 'likes'}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 mt-6">

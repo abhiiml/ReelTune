@@ -4,6 +4,8 @@ import { SyncService } from './sync.service.js';
 import { JobQueueService } from './job-queue.service.js';
 import { SpotifySyncProcessor } from './spotify-sync.processor.js';
 import { YoutubeSyncProcessor } from './youtube-sync.processor.js';
+import { AppleMusicSyncProcessor } from './apple-music-sync.processor.js';
+import { JioSaavnSyncProcessor } from './jiosaavn-sync.processor.js';
 import { PrismaModule } from '../prisma/prisma.service.js';
 import { IntegrationsModule } from '../integrations/integrations.module.js';
 
@@ -17,7 +19,9 @@ import { IntegrationsModule } from '../integrations/integrations.module.js';
     JobQueueService,
     SyncService,
     SpotifySyncProcessor,
-    YoutubeSyncProcessor
+    YoutubeSyncProcessor,
+    AppleMusicSyncProcessor,
+    JioSaavnSyncProcessor
   ],
 })
 export class SyncModule {}

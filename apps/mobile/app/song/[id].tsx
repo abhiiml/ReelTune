@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator, Pressable, Modal } from 'react-native';
+import { View, Text, StyleSheet, Image, ActivityIndicator, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -9,7 +9,7 @@ import { useSaveSong } from '../../hooks/useSaveSong';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
 import { DuplicateSaveModal } from '../../components/ui/DuplicateSaveModal';
 import { useToastStore } from '../../store/useToastStore';
-import { Heart, ExternalLink, ChevronLeft, X } from 'lucide-react-native';
+import { Heart, ExternalLink, ChevronLeft } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 

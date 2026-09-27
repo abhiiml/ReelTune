@@ -72,6 +72,7 @@ export default function ProfileScreen() {
 
   const isSpotifyConnected = integrations?.some(i => i.provider === 'spotify');
   const isYoutubeConnected = integrations?.some(i => i.provider === 'youtube');
+  const isAppleMusicConnected = integrations?.some(i => i.provider === 'apple-music');
 
   return (
     <View style={styles.container}>
@@ -135,6 +136,38 @@ export default function ProfileScreen() {
               <View style={styles.settingRowRight}>
                 <Text style={[styles.statusText, isYoutubeConnected && styles.statusConnected]}>
                   {isYoutubeConnected ? 'Connected' : 'Disconnected'}
+                </Text>
+                <ChevronRight size={20} color={Colors.textSecondary} />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.settingRow} 
+              onPress={() => router.push('/settings/apple-music' as never)}
+            >
+              <View style={styles.settingRowLeft}>
+                <Settings size={20} color={Colors.textSecondary} />
+                <Text style={styles.settingText}>Apple Music</Text>
+              </View>
+              <View style={styles.settingRowRight}>
+                <Text style={[styles.statusText, isAppleMusicConnected && styles.statusConnected]}>
+                  {isAppleMusicConnected ? 'Connected' : 'Disconnected'}
+                </Text>
+                <ChevronRight size={20} color={Colors.textSecondary} />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.settingRow} 
+              onPress={() => router.push('/settings/jiosaavn' as never)}
+            >
+              <View style={styles.settingRowLeft}>
+                <Settings size={20} color={Colors.textSecondary} />
+                <Text style={styles.settingText}>JioSaavn</Text>
+              </View>
+              <View style={styles.settingRowRight}>
+                <Text style={styles.statusText}>
+                  Unavailable
                 </Text>
                 <ChevronRight size={20} color={Colors.textSecondary} />
               </View>

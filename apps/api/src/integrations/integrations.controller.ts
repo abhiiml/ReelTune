@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, UseGuards, Req, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Res, UseGuards, Req, Delete } from '@nestjs/common';
 import { IntegrationsService } from './integrations.service.js';
 import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard.js';
 import type { Response } from 'express';
@@ -81,6 +81,36 @@ export class IntegrationsController {
   @UseGuards(SupabaseAuthGuard)
   async disconnectYouTube(@Req() req: { user: { id: string } }) {
     await this.integrationsService.disconnectYouTube(req.user.id);
+    return { success: true };
+  }
+
+  @Post('apple-music/connect')
+  @UseGuards(SupabaseAuthGuard)
+  async connectAppleMusic(@Req() req: { user: { id: string } }, @Body() body: { musicUserToken: string }) {
+    if (!body.musicUserToken) {
+      return { success: false, message: 'musicUserToken is required' };
+    }
+    await this.integrationsService.connectAppleMusic(req.user.id, body.musicUserToken);
+    return { success: true };
+  }
+
+  @Delete('apple-music')
+  @UseGuards(SupabaseAuthGuard)
+  async disconnectAppleMusic(@Req() req: { user: { id: string } }) {
+    await this.integrationsService.disconnectAppleMusic(req.user.id);
+    return { success: true };
+  }
+
+  @Post('jiosaavn/connect')
+  @UseGuards(SupabaseAuthGuard)
+  async connectJioSaavn() {
+    return { success: false, message: 'JioSaavn does not provide a public API.' };
+  }
+
+  @Delete('jiosaavn')
+  @UseGuards(SupabaseAuthGuard)
+  async disconnectJioSaavn(@Req() req: { user: { id: string } }) {
+    await this.integrationsService.disconnectJioSaavn(req.user.id);
     return { success: true };
   }
 }

@@ -345,14 +345,14 @@ Run this test case end-to-end before calling MVP done:
 ---
 
 ## Future (Post-MVP Backlog)
-- TASK-F01: For non named songs use ai to analyse and find the song
+- [x] TASK-F01: For non named songs use ai to analyse and find the song
 - [x] TASK-F02: Shareable playlist links (public playlists with web preview)
 - [x] TASK-F03: Duplicate detection UI improvements
-- TASK-F04: AI Mood Classification (auto-tag songs: Chill, Energy, Romantic, etc.)
-- TASK-F05: Smart playlist suggestions ("You've saved 12 similar songs. Create a playlist?")
-- TASK-F06: Apple Music integration
-- TASK-F07: JioSaavn integration
-- TASK-F08: Social features (follow friends, public playlists, likes)
+- [x] TASK-F04: AI Mood Classification (auto-tag songs: Chill, Energy, Romantic, etc.)
+- [x] TASK-F05: Smart playlist suggestions ("You've saved 12 similar songs. Create a playlist?")
+- [x] TASK-F06: Apple Music integration
+- [x] TASK-F07: JioSaavn integration
+- [x] TASK-F08: Social features (follow friends, public playlists, likes)
 - TASK-F09: Collaborative playlists
 - TASK-F10: PostHog analytics dashboard review + growth loop optimization
 - TASK-F11: for non named songs use ai to analyse and find the song

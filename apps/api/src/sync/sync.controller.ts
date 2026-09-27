@@ -20,6 +20,20 @@ export class SyncController {
     return { jobId };
   }
 
+  @Post('playlists/:id/sync/apple-music')
+  @UseGuards(SupabaseAuthGuard)
+  async syncToAppleMusic(@Param('id') playlistId: string, @Req() req: { user: { id: string } }) {
+    const jobId = await this.syncService.enqueueAppleMusicSync(req.user.id, playlistId);
+    return { jobId };
+  }
+
+  @Post('playlists/:id/sync/jiosaavn')
+  @UseGuards(SupabaseAuthGuard)
+  async syncToJioSaavn(@Param('id') playlistId: string, @Req() req: { user: { id: string } }) {
+    const jobId = await this.syncService.enqueueJioSaavnSync(req.user.id, playlistId);
+    return { jobId };
+  }
+
   @Get('sync/:jobId')
   @UseGuards(SupabaseAuthGuard)
   async getSyncStatus(@Param('jobId') jobId: string, @Req() req: { user: { id: string } }) {

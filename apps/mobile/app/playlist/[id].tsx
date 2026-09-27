@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Share } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Share, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -15,6 +15,8 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { useSyncPlaylistToSpotify } from '../../hooks/useSyncPlaylistToSpotify';
 import { useSyncPlaylistToYouTube } from '../../hooks/useSyncPlaylistToYouTube';
+import { useSyncPlaylistToAppleMusic } from '../../hooks/useSyncPlaylistToAppleMusic';
+import { useSyncPlaylistToJioSaavn } from '../../hooks/useSyncPlaylistToJioSaavn';
 
 export default function PlaylistDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -26,6 +28,8 @@ export default function PlaylistDetailsScreen() {
   const { mutate: reorderSongs } = useReorderPlaylistSongs();
   const { mutate: syncSpotify, isPending: isSyncingSpotify } = useSyncPlaylistToSpotify();
   const { mutate: syncYouTube, isPending: isSyncingYouTube } = useSyncPlaylistToYouTube();
+  const { mutate: syncAppleMusic, isPending: isSyncingAppleMusic } = useSyncPlaylistToAppleMusic();
+  const { isPending: isSyncingJioSaavn } = useSyncPlaylistToJioSaavn();
 
   const [selectedItem, setSelectedItem] = useState<PlaylistSong | null>(null);
   const { showToast } = useToastStore();
@@ -148,6 +152,24 @@ export default function PlaylistDetailsScreen() {
     });
   };
 
+  const handleSyncAppleMusic = () => {
+    setShowSyncOptions(false);
+    syncAppleMusic(playlist.id, {
+      onSuccess: (data) => setActiveJobId(data.jobId),
+      onError: (err: Error) => {
+        showToast(err.message || 'Failed to sync to Apple Music', 'error');
+      }
+    });
+  };
+
+  const handleSyncJioSaavn = () => {
+    setShowSyncOptions(false);
+    Alert.alert(
+      'JioSaavn Sync Unavailable',
+      'JioSaavn currently does not provide an official public API for developers. This feature is architecturally ready but blocked by the provider.'
+    );
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -181,7 +203,7 @@ export default function PlaylistDetailsScreen() {
                 <Pressable 
                   style={styles.syncButton} 
                   onPress={() => setShowSyncOptions(true)}
-                  disabled={isSyncingSpotify || isSyncingYouTube}
+                  disabled={isSyncingSpotify || isSyncingYouTube || isSyncingAppleMusic || isSyncingJioSaavn}
                 >
                   <RefreshCw size={16} color="#fff" />
                   <Text style={styles.syncButtonText}>Sync Playlist</Text>
@@ -307,6 +329,16 @@ export default function PlaylistDetailsScreen() {
               <Pressable style={styles.actionRow} onPress={handleSyncYouTube}>
                 <ExternalLink size={24} color={Colors.youtube} />
                 <Text style={[styles.actionText, { color: Colors.textPrimary }]}>YouTube Music</Text>
+              </Pressable>
+
+              <Pressable style={styles.actionRow} onPress={handleSyncAppleMusic}>
+                <ExternalLink size={24} color={Colors.appleMusic} />
+                <Text style={[styles.actionText, { color: Colors.textPrimary }]}>Apple Music</Text>
+              </Pressable>
+
+              <Pressable style={styles.actionRow} onPress={handleSyncJioSaavn}>
+                <ExternalLink size={24} color={Colors.jiosaavn} />
+                <Text style={[styles.actionText, { color: Colors.textPrimary }]}>JioSaavn</Text>
               </Pressable>
             </View>
           </View>

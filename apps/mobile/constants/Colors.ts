@@ -16,6 +16,8 @@ export const Colors = {
   // Brand integration colors — only for their respective integrations
   spotify:      '#1DB954',
   youtube:      '#FF0000',
+  appleMusic:   '#FA243C',
+  jiosaavn:     '#2BC5B4',
 } as const;
 
 export type ColorKey = keyof typeof Colors;

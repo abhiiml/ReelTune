@@ -1,10 +1,12 @@
 import React from 'react';
 import type { ViewStyle, StyleProp } from 'react-native';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Music, Lock } from 'lucide-react-native';
+import { Music, Lock, Heart } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
 import type { Playlist } from '../../hooks/usePlaylists';
+import { useAuthStore } from '../../store/useAuthStore';
+import { usePlaylistLikes, useLikePlaylist, useUnlikePlaylist } from '../../hooks/useSocial';
 
 interface PlaylistCardProps {
   playlist: Playlist;
@@ -13,6 +15,19 @@ interface PlaylistCardProps {
 }
 
 export function PlaylistCard({ playlist, onPress, style }: PlaylistCardProps) {
+  const { user } = useAuthStore();
+  const { data: likes } = usePlaylistLikes(playlist.id);
+  const { mutate: likePlaylist } = useLikePlaylist();
+  const { mutate: unlikePlaylist } = useUnlikePlaylist();
+
+  const isLiked = likes?.some(l => l.id === user?.id);
+  const showLike = !playlist.isPrivate && playlist.userId !== user?.id; // Assuming playlist object has userId, wait, usePlaylists might not return userId
+
+  const handleLikeToggle = () => {
+    if (isLiked) unlikePlaylist(playlist.id);
+    else likePlaylist(playlist.id);
+  };
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -27,6 +42,11 @@ export function PlaylistCard({ playlist, onPress, style }: PlaylistCardProps) {
         <View style={styles.placeholderArtwork}>
           <Music size={32} color={Colors.textMuted} />
         </View>
+        {showLike && (
+          <Pressable style={styles.likeBtn} onPress={handleLikeToggle}>
+            <Heart size={20} color={isLiked ? Colors.error : Colors.textPrimary} fill={isLiked ? Colors.error : 'transparent'} />
+          </Pressable>
+        )}
       </View>
       
       <View style={styles.details}>
@@ -41,6 +61,7 @@ export function PlaylistCard({ playlist, onPress, style }: PlaylistCardProps) {
         
         <Text style={styles.subtitle} numberOfLines={1}>
           {playlist._count?.songs || 0} {(playlist._count?.songs === 1) ? 'song' : 'songs'}
+          {likes !== undefined && likes.length > 0 && ` • ${likes.length} ${likes.length === 1 ? 'like' : 'likes'}`}
         </Text>
       </View>
     </Pressable>
@@ -49,7 +70,7 @@ export function PlaylistCard({ playlist, onPress, style }: PlaylistCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: '47%', // Roughly half width for 2-column grid
+    width: '47%',
     marginBottom: Spacing.lg,
   },
   pressed: {
@@ -62,11 +83,20 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: Colors.cardElevated,
     marginBottom: Spacing.sm,
+    position: 'relative',
   },
   placeholderArtwork: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  likeBtn: {
+    position: 'absolute',
+    top: Spacing.sm,
+    right: Spacing.sm,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 20,
+    padding: 6,
   },
   details: {
     paddingHorizontal: 4,

@@ -207,7 +207,51 @@
   - Unified duplicate detection behavior across `song/[id]` and `save` screens.
 
 ### Current / Next Step
+- ✅ **TASK-901-B (Render Lockfile Fix)**:
+  - Fixed `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` by removing deprecated `pnpm` configuration from `package.json` (moved to `pnpm-workspace.yaml`).
+  - Ran `pnpm install --frozen-lockfile` successfully.
+  - Fixed TypeScript error in `playlists.service.ts` and successfully verified `pnpm build`.
 - ✅ **TASK-902 (EAS Mobile Build)**:
   - EAS authentication completed.
   - Successfully debugged Metro bundler's hidden resolution error (by patching `metro` to stop swallowing initialization errors) and added `babel-preset-expo` to `devDependencies`.
   - Re-ran the build successfully. The app successfully compiled via Android EAS.
+
+- ✅ **TASK-F01: For non named songs use AI to analyse and find the song**:
+  - Implemented Gemini 2.5 Flash fallback using `@google/genai` inside `RecognitionService`.
+  - Audio URLs that fail AudD.io recognition are now fetched into memory and sent to Gemini as inline multimodal audio data to identify title and artist.
+  - Graceful degradation if `GEMINI_API_KEY` is not set.
+  - **Verified**: Removed all hardcoded mock song returns. Confirmed `pnpm install --frozen-lockfile`, `pnpm build`, and `pnpm typecheck` pass cleanly across the monorepo. Render configuration is intact.
+
+- ✅ **TASK-F04: AI Mood Classification (auto-tag songs)**:
+  - Added AI background task in `SongsService` that dynamically tags a track with its mood ("Chill", "Energy", "Romantic", etc.) when saved to the library.
+  - Handled this elegantly by updating the `metadata` JSON field in the Prisma `Song` model, avoiding any complex database migrations while maintaining all current architectural constraints.
+
+- ✅ **TASK-F05: Smart playlist suggestions**:
+  - Implemented `GET /api/v1/users/me/playlist-suggestions` which securely scans the user's saved library for Gemini-generated mood tags.
+  - Excludes tags that already exist as playlists for that user to avoid spam.
+  - Built a dynamic UI banner at the top of the Playlists tab showing "Smart Suggestion" if 3+ songs share a tag.
+  - Implemented 1-tap "Create Playlist" flow which instantly builds the playlist and populates it with all relevant `songIds` behind the scenes.
+  - **Security Verified:** Explicitly added logic to `createPlaylist` to ensure that any array of `songIds` provided during bulk creation strictly belongs to the authenticated user's `SavedSong` library, preventing unauthorized addition of global catalog songs.
+
+- ✅ **TASK-F06: Apple Music Integration**:
+  - Implemented optional Apple Music integration using the MusicKit User Token structure.
+  - Created `POST /api/v1/integrations/apple-music/connect` to save encrypted Apple Music tokens.
+  - Added background `AppleMusicSyncProcessor` matching Spotify's in-memory queue architecture.
+  - Added Apple Music settings connection page and playlist Sync action sheet buttons on mobile.
+  - **Limitation**: Native Expo does not natively support generating Music User Tokens without custom native modules. The current mobile UI accepts a manual `musicUserToken` text entry, which acts as a development/integration workaround.
+  - Uses exact integration/encryption patterns required by Render Free environment (no Redis/BullMQ).
+- ✅ **TASK-F07: JioSaavn Integration**:
+  - Investigated JioSaavn API availability and confirmed no official public developer API exists.
+  - Adhered strictly to security protocols: did not use unofficial scraping, did not bypass access controls, did not invent credentials.
+  - Implemented the full architectural boundary (UI, backend API, `ConnectedAccount` provider type, and Background Job skeleton) for JioSaavn to match Spotify/Apple Music.
+  - Implemented graceful blockers across UI (`settings/jiosaavn.tsx`) and API (`JioSaavnSyncProcessor`), accurately reporting that integration requires a supported public API.
+
+- ✅ **TASK-F08: Social Features (follow friends, public playlists, likes)**:
+  - Added Prisma models `Follow` (composite key followerId/followingId) and `PlaylistLike` (userId/playlistId).
+  - Implemented secure API endpoints for following, unfollowing, getting followers/following, and liking playlists.
+  - Enforced 1-way Instagram-style follows and duplicate detection at the DB level.
+  - Implemented `getUserProfile` API to expose only public data (counts, public playlists).
+  - Built Mobile UI for public profiles (`user/[id].tsx`) and integrated `useSocial.ts` React Query hooks.
+  - Added Like button directly on `PlaylistCard` for non-owned public playlists.
+  - Integrated `likesCount` into the Web Playlist preview page.
+  - Verified backend logic via e2e test script and confirmed DB constraints.

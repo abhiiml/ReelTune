@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from 'react-native';
+// @ts-ignore
 import { useLocalSearchParams as useExpoParams, useRouter as useExpoRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -104,7 +105,7 @@ export default function UserProfileScreen() {
         }
         renderItem={({ item }) => (
           <PlaylistCard 
-            playlist={{ ...item, _count: { songs: item.songCount } }} 
+            playlist={{ ...item, userId: profile.id, _count: { songs: item.songCount } }} 
             onPress={() => router.push(`/playlist/${item.id}`)}
           />
         )}
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
   followingBtn: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.textMuted,
   },
   followBtnText: {
     ...Typography.body,

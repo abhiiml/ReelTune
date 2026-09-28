@@ -152,10 +152,9 @@ export default function LoginScreen() {
           />
         </View>
 
-        {/* Register link */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Don't have an account?</Text>
-          <Pressable onPress={() => router.push('/(auth)/register')}>
+          <Pressable onPress={() => router.push('/(auth)/register')} hitSlop={15}>
             <Text style={[styles.footerText, styles.footerLink]}> Register</Text>
           </Pressable>
         </View>
@@ -172,7 +171,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingBottom: 48,
+    paddingBottom: 120,
     justifyContent: 'center',
     gap: 0,
   },

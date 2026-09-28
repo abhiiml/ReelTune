@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-const RAW_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+const RAW_URL = process.env.EXPO_PUBLIC_API_URL || 'https://reeltune-ucvm.onrender.com';
 export const getBaseUrl = (): string => RAW_URL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 export const API_URL = `${getBaseUrl()}/api/v1`;
 
@@ -31,7 +31,8 @@ export const fetchApi = async <T>(endpoint: string, options: RequestInit = {}): 
         errorMessage = errorData.message || errorMessage;
       }
     } catch (e) {
-      errorMessage = await response.text();
+      const text = await response.text();
+      errorMessage = text || errorMessage;
     }
     throw new Error(errorMessage);
   }

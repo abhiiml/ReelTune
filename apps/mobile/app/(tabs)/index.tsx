@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useSavedSongs } from '../../hooks/useSavedSongs';
 import { usePlaylists } from '../../hooks/usePlaylists';
 import { PlaylistCard } from '../../components/ui/PlaylistCard';
+import { API_URL } from '../../lib/api';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -24,8 +25,7 @@ export default function HomeScreen() {
     const fetchProfile = async () => {
       if (!session?.access_token) return;
       try {
-        const apiBase = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-        const res = await fetch(`${apiBase}/api/v1/auth/me`, {
+        const res = await fetch(`${API_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${session.access_token}` }
         });
         if (res.ok) {

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { API_URL } from '../lib/api';
 
 interface AuthState {
   session: Session | null;
@@ -60,19 +61,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Sync user to our backend user table via API
     if (data.user) {
       try {
-        const apiBase = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-        // Get session token to call the API
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData.session?.access_token;
-
-        await fetch(`${apiBase}/api/v1/auth/register`, {
+        await fetch(`${API_URL}/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, name }),
         });
         // Note: register may return 400 if already registered — that's fine
         // The user already exists in Supabase; this just ensures the DB row
-        void token; // suppress unused var warning
       } catch {
         // Non-fatal: Supabase user was created, DB row will be created on next login via /me
       }

@@ -10,6 +10,7 @@ import { useSavedSongs } from '../../hooks/useSavedSongs';
 import { usePlaylists } from '../../hooks/usePlaylists';
 import { useIntegrations } from '../../hooks/useIntegrations';
 import { useDeleteAccount } from '../../hooks/useDeleteAccount';
+import { API_URL } from '../../lib/api';
 
 export default function ProfileScreen() {
   const { session, signOut } = useAuthStore();
@@ -26,8 +27,7 @@ export default function ProfileScreen() {
     const fetchProfile = async () => {
       if (!session?.access_token) return;
       try {
-        const apiBase = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-        const res = await fetch(`${apiBase}/api/v1/auth/me`, {
+        const res = await fetch(`${API_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${session.access_token}`
           }

@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from 'react-native';
-// @ts-ignore
 import { useLocalSearchParams as useExpoParams, useRouter as useExpoRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
-import { Typography, Spacing, Radius } from '../../constants/Theme';
+import { Typography, Spacing } from '../../constants/Theme';
 import { useUserProfile, useFollowUser, useUnfollowUser, useFollowers } from '../../hooks/useSocial';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ArrowLeft, User as UserIcon } from 'lucide-react-native';

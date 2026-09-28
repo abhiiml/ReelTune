@@ -4,10 +4,11 @@ import { Colors } from '../../constants/Colors';
 import { Typography, Radius, Spacing } from '../../constants/Theme';
 import { useState, useEffect } from 'react';
 import { Music } from 'lucide-react-native';
+import { API_URL } from '../../lib/api';
 
 export default function AppleMusicSettings() {
   const { session } = useAuthStore();
-  const apiBase = process.env.EXPO_PUBLIC_API_URL;
+  
   
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ export default function AppleMusicSettings() {
   const fetchIntegrations = async () => {
     try {
       if (!session) return;
-      const res = await fetch(`${apiBase}/integrations`, {
+      const res = await fetch(`${API_URL}/integrations`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (res.ok) {
@@ -43,7 +44,7 @@ export default function AppleMusicSettings() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/integrations/apple-music/connect`, {
+      const res = await fetch(`${API_URL}/integrations/apple-music/connect`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ export default function AppleMusicSettings() {
   const handleDisconnect = async () => {
     setLoading(true);
     try {
-      await fetch(`${apiBase}/integrations/apple-music`, {
+      await fetch(`${API_URL}/integrations/apple-music`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });

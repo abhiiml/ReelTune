@@ -163,10 +163,9 @@ export default function RegisterScreen() {
           </Text>
         </View>
 
-        {/* Login link */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account?</Text>
-          <Pressable onPress={() => router.replace('/(auth)/login')}>
+          <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={15}>
             <Text style={[styles.footerText, styles.footerLink]}> Sign In</Text>
           </Pressable>
         </View>
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 72,
-    paddingBottom: 48,
+    paddingBottom: 120,
   },
   header: {
     marginBottom: 32,

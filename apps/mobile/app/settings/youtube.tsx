@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { API_URL } from '../../lib/api';
 
 export default function YouTubeConnectionScreen() {
   const { session } = useAuthStore();
@@ -16,13 +17,13 @@ export default function YouTubeConnectionScreen() {
   const [connecting, setConnecting] = useState(false);
   const [connectedService, setConnectedService] = useState<{ providerAccountId: string } | null>(null);
 
-  const apiBase = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+  
 
   const fetchIntegrations = async () => {
     if (!session?.access_token) return;
     try {
       setLoading(true);
-      const res = await fetch(`${apiBase}/api/v1/integrations`, {
+      const res = await fetch(`${API_URL}/integrations`, {
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
       if (res.ok) {
@@ -58,7 +59,7 @@ export default function YouTubeConnectionScreen() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const connectUrl = `${apiBase}/api/v1/integrations/youtube/connect`;
+      const connectUrl = `${API_URL}/integrations/youtube/connect`;
       const result = await WebBrowser.openAuthSessionAsync(
         connectUrl,
         Linking.createURL('settings/youtube')
@@ -82,7 +83,7 @@ export default function YouTubeConnectionScreen() {
     if (!session?.access_token) return;
     try {
       setLoading(true);
-      const res = await fetch(`${apiBase}/api/v1/integrations/youtube`, {
+      const res = await fetch(`${API_URL}/integrations/youtube`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session.access_token}` }
       });

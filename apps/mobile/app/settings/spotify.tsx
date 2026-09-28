@@ -16,13 +16,13 @@ export default function SpotifyConnectionScreen() {
   const [connecting, setConnecting] = useState(false);
   const [connectedService, setConnectedService] = useState<{ providerAccountId: string } | null>(null);
 
-  const apiBase = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+  
 
   const fetchIntegrations = async () => {
     if (!session?.access_token) return;
     try {
       setLoading(true);
-      const res = await fetch(`${apiBase}/api/v1/integrations`, {
+      const res = await fetch(`/integrations`, {
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
       if (res.ok) {
@@ -58,7 +58,7 @@ export default function SpotifyConnectionScreen() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const connectUrl = `${apiBase}/api/v1/integrations/spotify/connect`;
+      const connectUrl = `/integrations/spotify/connect`;
       const result = await WebBrowser.openAuthSessionAsync(
         connectUrl,
         Linking.createURL('settings/spotify')
@@ -82,7 +82,7 @@ export default function SpotifyConnectionScreen() {
     if (!session?.access_token) return;
     try {
       setLoading(true);
-      const res = await fetch(`${apiBase}/api/v1/integrations/spotify`, {
+      const res = await fetch(`/integrations/spotify`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session.access_token}` }
       });

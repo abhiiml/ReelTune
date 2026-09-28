@@ -178,6 +178,77 @@ Timeout: 15s hard limit. Return the failed shape above rather than hanging.
 
 ---
 
+## ONE-TAP SHARE & AUTO-PLAYLIST
+
+### POST /share/reel 🔒
+```json
+// Request
+{
+  "url": "https://www.instagram.com/reel/DDh2O3pv8mQ/",
+  "provider": "reeltune",      // optional: "reeltune" | "spotify" | "apple-music" | "youtube"
+  "playlistId": "pl_123"       // optional
+}
+
+// 200 — Success (Added)
+{
+  "success": true,
+  "status": "ADDED",
+  "message": "✓ Added to Reels Finds",
+  "song": {
+    "id": "song_123",
+    "title": "Die With A Smile",
+    "artists": ["Lady Gaga", "Bruno Mars"],
+    "album": "Single",
+    "artwork": "https://...",
+    "spotifyId": "..."
+  },
+  "destination": {
+    "provider": "reeltune",
+    "providerDisplayName": "ReelTune Library",
+    "playlistId": "pl_123",
+    "playlistName": "Reels Finds",
+    "externalTrackUrl": "..."
+  },
+  "actions": ["OPEN_PLAYLIST", "DONE"]
+}
+
+// 200 — Duplicate (Already in destination playlist)
+{
+  "success": true,
+  "status": "ALREADY_EXISTS",
+  "message": "Already in Reels Finds ✓",
+  "song": { ... },
+  "destination": { ... },
+  "actions": ["OPEN_PLAYLIST", "DONE"]
+}
+
+// 200 — Failure / Fallback (Graceful failure)
+{
+  "success": false,
+  "status": "RECOGNITION_FAILED",
+  "message": "We couldn't identify the song from this Reel.",
+  "actions": ["SEARCH_MANUALLY", "TRY_AGAIN"]
+}
+```
+
+### GET /destinations/options 🔒
+Returns all music providers, connection status, and their respective playlists.
+
+### GET /destinations/preferences 🔒
+Returns the user's active default destination preference.
+
+### POST /destinations/preferences 🔒
+```json
+// Request
+{
+  "provider": "spotify",
+  "playlistId": "spotify_pl_xyz",
+  "playlistName": "Gym Songs"
+}
+```
+
+---
+
 ## PLAYLISTS
 
 ### GET /playlists 🔒

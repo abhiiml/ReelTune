@@ -344,6 +344,16 @@ Run this test case end-to-end before calling MVP done:
 
 ---
 
+## Core Enhancements
+- [x] TASK-CORE-SHARE: One-Tap Reel Share → Auto Recognize → Auto Playlist
+  - Provider-agnostic destination manager (ReelTune, Spotify, Apple Music, YouTube)
+  - Backend orchestration endpoint POST /api/v1/share/reel & /destinations
+  - Share-target handling from Android ACTION_SEND / iOS Share Intent
+  - Dedicated /share/reel flow with animated waveform audio visualizer
+  - Default destination & playlist preference management in Settings
+
+---
+
 ## Future (Post-MVP Backlog)
 - [x] TASK-F01: For non named songs use ai to analyse and find the song
 - [x] TASK-F02: Shareable playlist links (public playlists with web preview)
@@ -353,6 +363,6 @@ Run this test case end-to-end before calling MVP done:
 - [x] TASK-F06: Apple Music integration
 - [x] TASK-F07: JioSaavn integration
 - [x] TASK-F08: Social features (follow friends, public playlists, likes)
-- TASK-F09: Collaborative playlists
-- TASK-F10: PostHog analytics dashboard review + growth loop optimization
-- TASK-F11: for non named songs use ai to analyse and find the song
+- [ ] TASK-F09: Collaborative playlists
+- [ ] TASK-F10: PostHog analytics dashboard review + growth loop optimization
+- [x] TASK-F11: for non named songs use ai to analyse and find the song

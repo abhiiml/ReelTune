@@ -218,8 +218,10 @@ export class PlaylistsService {
         }
       });
       return { success: true };
-    } catch (e: any) {
-      if (e?.code === 'P2002') return { success: true, alreadyLiked: true };
+    } catch (e: unknown) {
+      if (e !== null && typeof e === 'object' && 'code' in e && (e as { code: string }).code === 'P2002') {
+        return { success: true, alreadyLiked: true };
+      }
       throw e;
     }
   }

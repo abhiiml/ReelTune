@@ -261,3 +261,12 @@
   - Created maintainable Mermaid diagrams in `docs/` (`architecture.md`, `data-flow.md`, `user-flow.md`).
   - Audited feature claims against the active `package.json`, `schema.prisma`, and `TASKS.md` to ensure zero fabricated features.
   - Clarified environment secrets, limitations, and deployment strategies.
+
+- ✅ **TASK-CORE-SHARE: One-Tap Reel Share → Auto Recognize → Auto Playlist**:
+  - **Provider-Agnostic Music Destination Architecture**: Created `MusicProvider` interface, `ProviderRegistryService`, and concrete providers (`ReelTuneProvider`, `SpotifyProvider`, `AppleMusicProvider`, `YouTubeProvider`, `JioSaavnProvider`).
+  - **Destination Management**: Created `DestinationsService` and `DestinationsController` (`/api/v1/destinations/options` and `/api/v1/destinations/preferences`) with client-side caching store (`useDestinationStore`).
+  - **One-Tap Share Orchestration**: Implemented `POST /api/v1/share/reel` with URL sanitization, recognition, canonical song entity resolution, automatic track matching, and duplicate prevention.
+  - **Mobile Share Sheet Flow**: Built `app/share/reel.tsx` with smooth audio equalizer animation (`WaveformAnimation`), automated processing, success state with artwork, title, and destination badge, and graceful failure fallback.
+  - **Native Intent & Deep-Linking**: Configured `_layout.tsx` to handle `useShareIntent()` from Android `ACTION_SEND` and iOS share intents to route directly to `/share/reel`.
+  - **Testing & Verification**: 9 unit tests passing for URL normalization, duplicate detection, and provider selection. Typecheck and lint pass cleanly with 0 warnings across the entire monorepo.
+

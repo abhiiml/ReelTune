@@ -11,6 +11,7 @@ import { PlaylistsModule } from './playlists/playlists.module.js';
 import { IntegrationsModule } from './integrations/integrations.module.js';
 import { SyncModule } from './sync/sync.module.js';
 import { RecognitionModule } from './recognition/recognition.module.js';
+import { ShareModule } from './share/share.module.js';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { RecognitionModule } from './recognition/recognition.module.js';
     PlaylistsModule, 
     IntegrationsModule,
     SyncModule,
-    RecognitionModule
+    RecognitionModule,
+    ShareModule,
   ],
   controllers: [AppController],
   providers: [AppService],

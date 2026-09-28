@@ -133,8 +133,8 @@ export class UsersService {
         }
       });
       return { success: true };
-    } catch (e: any) {
-      if (e?.code === 'P2002') {
+    } catch (e: unknown) {
+      if (e !== null && typeof e === 'object' && 'code' in e && (e as { code: string }).code === 'P2002') {
          return { success: true, alreadyFollowing: true };
       }
       throw e;

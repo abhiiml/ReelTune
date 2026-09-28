@@ -65,14 +65,14 @@ export default function HomeScreen() {
         </Pressable>
 
         {/* Hero Card */}
-        <Pressable style={styles.heroCard} onPress={() => router.push('/save')}>
+        <Pressable style={styles.heroCard} onPress={() => router.push('/share/reel' as never)}>
           <View style={styles.heroContent}>
             <View style={styles.heroIconBadge}>
               <PlusCircle size={28} color={Colors.accent} />
             </View>
             <View style={styles.heroTextContainer}>
-              <Text style={styles.heroTitle}>Save from Reel</Text>
-              <Text style={styles.heroSubtitle}>Paste a URL to identify and save music.</Text>
+              <Text style={styles.heroTitle}>One-Tap Reel Save</Text>
+              <Text style={styles.heroSubtitle}>Share from Instagram to auto-identify & add to playlist.</Text>
             </View>
           </View>
         </Pressable>

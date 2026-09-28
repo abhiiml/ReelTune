@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SecureStore from 'expo-secure-store';
 import * as Network from 'expo-network';
+import { useShareIntent } from 'expo-share-intent';
 import {
   useFonts,
   Manrope_400Regular,
@@ -18,6 +19,8 @@ import {
 import { Colors } from '../constants/Colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
+import { useDestinationStore } from '../store/useDestinationStore';
+import { extractAndNormalizeInstagramUrl } from '../lib/instagram';
 
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
 import { ToastManager } from '../components/ui/ToastManager';
@@ -49,11 +52,14 @@ function RootLayout() {
   });
 
   const { session, initialize, isLoading: isAuthLoading } = useAuthStore();
+  const initializeDestinations = useDestinationStore((s) => s.initialize);
   const segments = useSegments();
   const router = useRouter();
 
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
   const [isOffline, setIsOffline] = useState(false);
+
+  const { hasShareIntent, shareIntent, resetShareIntent } = useShareIntent();
 
   useEffect(() => {
     const checkNetwork = async () => {
@@ -76,7 +82,25 @@ function RootLayout() {
     };
     checkOnboarding();
     initialize();
-  }, [initialize]);
+    initializeDestinations();
+  }, [initialize, initializeDestinations]);
+
+  // Handle incoming Share Intent from Instagram or other apps
+  useEffect(() => {
+    if (hasShareIntent && shareIntent) {
+      const intentRecord = shareIntent as unknown as Record<string, string>;
+      const rawText = intentRecord.value || intentRecord.text || '';
+      const { isValid, cleanUrl } = extractAndNormalizeInstagramUrl(rawText);
+
+      if (isValid && cleanUrl) {
+        resetShareIntent();
+        router.push(`/share/reel?url=${encodeURIComponent(cleanUrl)}` as never);
+      } else if (rawText) {
+        resetShareIntent();
+        router.push(`/share/reel?url=${encodeURIComponent(rawText)}` as never);
+      }
+    }
+  }, [hasShareIntent, shareIntent, resetShareIntent, router]);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -90,13 +114,15 @@ function RootLayout() {
     const inAuthGroup = segments[0] === '(auth)';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inOnboarding = segments[0] === ('onboarding' as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const inShareGroup = segments[0] === ('share' as any);
 
     if (session && (inAuthGroup || inOnboarding)) {
       router.replace('/(tabs)');
     } else if (!session) {
       if (!onboardingComplete && !inOnboarding) {
         router.replace('/onboarding' as never);
-      } else if (onboardingComplete && !inAuthGroup) {
+      } else if (onboardingComplete && !inAuthGroup && !inShareGroup) {
         router.replace('/(auth)/login');
       }
     }
@@ -120,6 +146,8 @@ function RootLayout() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="share/reel" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="settings/destinations" />
           <Stack.Screen name="+not-found" />
         </Stack>
         <ToastManager />

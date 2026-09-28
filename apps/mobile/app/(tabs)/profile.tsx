@@ -107,7 +107,27 @@ export default function ProfileScreen() {
 
         {!loading && (
           <View style={styles.settingsSection}>
-            <Text style={styles.sectionTitle}>Connections</Text>
+            <Text style={styles.sectionTitle}>Music Destinations</Text>
+            
+            <TouchableOpacity 
+              style={[styles.settingRow, { borderColor: 'rgba(217, 154, 91, 0.4)', borderWidth: 1 }]} 
+              onPress={() => router.push('/settings/destinations' as never)}
+            >
+              <View style={styles.settingRowLeft}>
+                <Settings size={20} color={Colors.accent} />
+                <View>
+                  <Text style={[styles.settingText, { color: Colors.accent, fontFamily: 'Manrope_600SemiBold' }]}>
+                    Auto-Save Destination
+                  </Text>
+                  <Text style={{ ...Typography.caption, color: Colors.textSecondary }}>
+                    Choose where shared Reels are saved
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={20} color={Colors.accent} />
+            </TouchableOpacity>
+
+            <Text style={[styles.sectionTitle, { marginTop: Spacing.lg }]}>Connections</Text>
             
             <TouchableOpacity 
               style={styles.settingRow} 

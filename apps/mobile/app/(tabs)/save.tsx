@@ -2,19 +2,26 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, Alert } from 'react-native';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
-import { Search } from 'lucide-react-native';
+import { Search, Sparkles, SlidersHorizontal, FolderPlus } from 'lucide-react-native';
 import { useShareIntent } from 'expo-share-intent';
+import { useRouter } from 'expo-router';
 import { useIdentifyReel } from '../../hooks/useIdentifyReel';
 import { useSaveSong } from '../../hooks/useSaveSong';
+import { useDestinationPreferences } from '../../hooks/useDestinations';
+import { useDestinationStore } from '../../store/useDestinationStore';
 import type { IdentifyReelResponse } from '../../hooks/useIdentifyReel';
 import { IdentificationResultModal } from '../../components/ui/IdentificationResultModal';
 import { DuplicateSaveModal } from '../../components/ui/DuplicateSaveModal';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
 
 export default function SaveScreen() {
+  const router = useRouter();
   const [url, setUrl] = useState('');
   const { mutate: identifyReel, isPending } = useIdentifyReel();
   const { mutate: saveSong } = useSaveSong();
+  const { data: destPref } = useDestinationPreferences();
+  const { activePlaylistName, activeProvider } = useDestinationStore();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [result, setResult] = useState<IdentifyReelResponse | null>(null);
   const [duplicateTitle, setDuplicateTitle] = useState('');
@@ -28,14 +35,11 @@ export default function SaveScreen() {
       const intentRecord = shareIntent as unknown as Record<string, string>;
       const incomingUrl = intentRecord.value || intentRecord.text;
       if (incomingUrl) {
-        setUrl(incomingUrl);
         resetShareIntent();
-        
-        // Auto trigger identification
-        handleIdentify(incomingUrl);
+        router.push(`/share/reel?url=${encodeURIComponent(incomingUrl)}` as never);
       }
     }
-  }, [hasShareIntent, shareIntent, resetShareIntent]);
+  }, [hasShareIntent, shareIntent, resetShareIntent, router]);
 
   const handleIdentify = (urlToIdentify?: string) => {
     const targetUrl = typeof urlToIdentify === 'string' ? urlToIdentify : url;
@@ -74,12 +78,30 @@ export default function SaveScreen() {
     });
   };
 
+  const destinationName = destPref?.playlistName || activePlaylistName || 'Reels Finds';
+  const provider = destPref?.provider || activeProvider || 'reeltune';
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Save a Song</Text>
         <Text style={styles.subtitle}>Identify songs from Instagram Reels instantly.</Text>
       </View>
+
+      {/* One-Tap Banner */}
+      <TouchableOpacity 
+        style={styles.oneTapBanner}
+        onPress={() => router.push('/share/reel' as never)}
+      >
+        <View style={styles.oneTapBannerLeft}>
+          <Sparkles size={20} color={Colors.accent} />
+          <View>
+            <Text style={styles.oneTapBannerTitle}>One-Tap Reel Save</Text>
+            <Text style={styles.oneTapBannerSubtitle}>Auto-identifies & saves directly to {destinationName}</Text>
+          </View>
+        </View>
+        <SlidersHorizontal size={18} color={Colors.accent} />
+      </TouchableOpacity>
 
       <View style={styles.inputContainer}>
         <View style={styles.inputWrapper}>
@@ -105,6 +127,17 @@ export default function SaveScreen() {
           ) : (
             <Text style={styles.buttonText}>Identify Song</Text>
           )}
+        </TouchableOpacity>
+
+        {/* Destination Info */}
+        <TouchableOpacity
+          style={styles.destInfoRow}
+          onPress={() => router.push('/settings/destinations' as never)}
+        >
+          <FolderPlus size={16} color={Colors.textSecondary} />
+          <Text style={styles.destInfoText}>
+            Default Destination: <Text style={styles.destInfoBold}>{destinationName}</Text> ({provider})
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -145,7 +178,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing['2xl'],
+    marginBottom: Spacing.xl,
     gap: Spacing.xs,
   },
   title: {
@@ -157,8 +190,34 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
   },
+  oneTapBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(217, 154, 91, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(217, 154, 91, 0.3)',
+    borderRadius: Radius.card,
+    padding: Spacing.base,
+    marginBottom: Spacing.xl,
+  },
+  oneTapBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    flex: 1,
+  },
+  oneTapBannerTitle: {
+    ...Typography.h3,
+    color: Colors.accent,
+    marginBottom: 2,
+  },
+  oneTapBannerSubtitle: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
   inputContainer: {
-    gap: Spacing.lg,
+    gap: Spacing.md,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -184,7 +243,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 52, // Fixed height to prevent jumping when showing loader
+    height: 52,
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -192,5 +251,20 @@ const styles = StyleSheet.create({
   buttonText: {
     ...Typography.h3,
     color: '#fff',
+  },
+  destInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    marginTop: Spacing.sm,
+  },
+  destInfoText: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+  destInfoBold: {
+    color: Colors.accent,
+    fontFamily: 'Manrope_600SemiBold',
   },
 });

@@ -255,3 +255,9 @@
   - Added Like button directly on `PlaylistCard` for non-owned public playlists.
   - Integrated `likesCount` into the Web Playlist preview page.
   - Verified backend logic via e2e test script and confirmed DB constraints.
+
+- ✅ **TASK-F09: README & Visual Showcase Pass**:
+  - Overhauled `README.md` to a professional, hackathon-ready presentation.
+  - Created maintainable Mermaid diagrams in `docs/` (`architecture.md`, `data-flow.md`, `user-flow.md`).
+  - Audited feature claims against the active `package.json`, `schema.prisma`, and `TASKS.md` to ensure zero fabricated features.
+  - Clarified environment secrets, limitations, and deployment strategies.

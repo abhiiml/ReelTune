@@ -8,7 +8,7 @@ export class SupabaseService {
 
   constructor() {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+    const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
       this.logger.warn('Supabase credentials are missing. SupabaseService may fail to connect.');

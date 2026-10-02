@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-const RAW_URL = process.env.EXPO_PUBLIC_API_URL || 'https://reeltune-ucvm.onrender.com';
+const RAW_URL = process.env.EXPO_PUBLIC_API_URL || '';
 export const getBaseUrl = (): string => RAW_URL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 export const API_URL = `${getBaseUrl()}/api/v1`;
 

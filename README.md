@@ -177,7 +177,7 @@ Never commit your `.env` files. You must create an `apps/api/.env` file. See `ap
 **Required:**
 - `DATABASE_URL`: PostgreSQL connection string.
 - `DIRECT_URL`: Direct database connection for Prisma migrations.
-- `SUPABASE_URL` / `SUPABASE_ANON_KEY`: For authentication.
+- `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`: For authentication.
 - `TOKEN_ENCRYPTION_KEY`: 32-character string to encrypt third-party OAuth tokens.
 
 **Optional (Required for full feature set):**

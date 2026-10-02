@@ -152,6 +152,7 @@ export default function RegisterScreen() {
             label="Create Account"
             onPress={handleRegister}
             isLoading={isLoading}
+            disabled={!name.trim() || !email.trim() || !password || !confirmPassword}
             style={styles.createBtn}
           />
 

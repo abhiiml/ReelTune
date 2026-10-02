@@ -131,6 +131,7 @@ export default function LoginScreen() {
             label="Sign In"
             onPress={handleSignIn}
             isLoading={isLoading}
+            disabled={!email.trim() || !password}
             style={styles.primaryBtn}
           />
 

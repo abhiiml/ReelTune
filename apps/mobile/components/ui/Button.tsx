@@ -46,14 +46,14 @@ export function Button({
     <Pressable
       onPress={handlePress}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      style={({ pressed }) => StyleSheet.flatten([
         styles.base,
         styles[variant],
         fullWidth && styles.fullWidth,
         pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
-      ]}
+      ])}
       {...rest}
     >
       {isLoading ? (

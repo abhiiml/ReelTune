@@ -46,6 +46,9 @@ export function Button({
     <Pressable
       onPress={handlePress}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled, busy: isLoading }}
+      accessibilityLabel={rest.accessibilityLabel || label}
       style={({ pressed }) => StyleSheet.flatten([
         styles.base,
         styles[variant],

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Keyboard, Alert, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { Search, Sparkles, SlidersHorizontal, FolderPlus } from 'lucide-react-native';
@@ -15,6 +16,7 @@ import { DuplicateSaveModal } from '../../components/ui/DuplicateSaveModal';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
 
 export default function SaveScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [url, setUrl] = useState('');
   const { mutate: identifyReel, isPending } = useIdentifyReel();
@@ -83,88 +85,103 @@ export default function SaveScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Save a Song</Text>
-        <Text style={styles.subtitle}>Identify songs from Instagram Reels instantly.</Text>
-      </View>
-
-      {/* One-Tap Banner */}
-      <TouchableOpacity 
-        style={styles.oneTapBanner}
-        onPress={() => router.push('/share/reel' as never)}
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + Spacing.xl, paddingBottom: insets.bottom + Spacing['2xl'] }
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.oneTapBannerLeft}>
-          <Sparkles size={20} color={Colors.accent} />
-          <View>
-            <Text style={styles.oneTapBannerTitle}>One-Tap Reel Save</Text>
-            <Text style={styles.oneTapBannerSubtitle}>Auto-identifies & saves directly to {destinationName}</Text>
-          </View>
-        </View>
-        <SlidersHorizontal size={18} color={Colors.accent} />
-      </TouchableOpacity>
-
-      <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
-          <Search size={20} color={Colors.textSecondary} style={styles.searchIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Paste Instagram Reel URL here..."
-            placeholderTextColor={Colors.textSecondary}
-            value={url}
-            onChangeText={setUrl}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+        <View style={styles.header}>
+          <Text style={styles.title}>Save a Song</Text>
+          <Text style={styles.subtitle}>Identify songs from Instagram Reels instantly.</Text>
         </View>
 
+        {/* One-Tap Banner */}
         <TouchableOpacity 
-          style={[styles.button, (!url.trim() || isPending) && styles.buttonDisabled]} 
-          onPress={() => handleIdentify()}
-          disabled={!url.trim() || isPending}
+          style={styles.oneTapBanner}
+          onPress={() => router.push('/share/reel' as never)}
+          accessibilityRole="button"
+          accessibilityLabel="One-Tap Reel Save"
         >
-          {isPending ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={styles.buttonText}>Identify Song</Text>
-          )}
+          <View style={styles.oneTapBannerLeft}>
+            <Sparkles size={20} color={Colors.accent} />
+            <View>
+              <Text style={styles.oneTapBannerTitle}>One-Tap Reel Save</Text>
+              <Text style={styles.oneTapBannerSubtitle}>Auto-identifies & saves directly to {destinationName}</Text>
+            </View>
+          </View>
+          <SlidersHorizontal size={18} color={Colors.accent} />
         </TouchableOpacity>
 
-        {/* Destination Info */}
-        <TouchableOpacity
-          style={styles.destInfoRow}
-          onPress={() => router.push('/settings/destinations' as never)}
-        >
-          <FolderPlus size={16} color={Colors.textSecondary} />
-          <Text style={styles.destInfoText}>
-            Default Destination: <Text style={styles.destInfoBold}>{destinationName}</Text> ({provider})
-          </Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <Search size={20} color={Colors.textSecondary} style={styles.searchIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Paste Instagram Reel URL here..."
+              placeholderTextColor={Colors.textSecondary}
+              value={url}
+              onChangeText={setUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
-      <IdentificationResultModal
-        visible={modalVisible}
-        result={result}
-        onClose={() => setModalVisible(false)}
-        onAddPlaylist={handleAddPlaylist}
-      />
+          <TouchableOpacity 
+            style={[styles.button, (!url.trim() || isPending) && styles.buttonDisabled]} 
+            onPress={() => handleIdentify()}
+            disabled={!url.trim() || isPending}
+            accessibilityRole="button"
+            accessibilityLabel="Identify Song"
+          >
+            {isPending ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.buttonText}>Identify Song</Text>
+            )}
+          </TouchableOpacity>
 
-      <DuplicateSaveModal
-        visible={showDuplicateModal}
-        title={duplicateTitle}
-        onClose={() => setShowDuplicateModal(false)}
-        onAddToPlaylist={() => setShowAddToPlaylist(true)}
-      />
+          {/* Destination Info */}
+          <TouchableOpacity
+            style={styles.destInfoRow}
+            onPress={() => router.push('/settings/destinations' as never)}
+            accessibilityRole="button"
+            accessibilityLabel={`Default Destination: ${destinationName}`}
+          >
+            <FolderPlus size={16} color={Colors.textSecondary} />
+            <Text style={styles.destInfoText}>
+              Default Destination: <Text style={styles.destInfoBold}>{destinationName}</Text> ({provider})
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {duplicateSongId ? (
-        <AddToPlaylistModal
-          visible={showAddToPlaylist}
-          songId={duplicateSongId}
-          onClose={() => setShowAddToPlaylist(false)}
-          onSuccess={(playlistName) => {
-            Alert.alert('Success', `Added to ${playlistName}`);
-          }}
+        <IdentificationResultModal
+          visible={modalVisible}
+          result={result}
+          onClose={() => setModalVisible(false)}
+          onAddPlaylist={handleAddPlaylist}
         />
-      ) : null}
+
+        <DuplicateSaveModal
+          visible={showDuplicateModal}
+          title={duplicateTitle}
+          onClose={() => setShowDuplicateModal(false)}
+          onAddToPlaylist={() => setShowAddToPlaylist(true)}
+        />
+
+        {duplicateSongId ? (
+          <AddToPlaylistModal
+            visible={showAddToPlaylist}
+            songId={duplicateSongId}
+            onClose={() => setShowAddToPlaylist(false)}
+            onSuccess={(playlistName) => {
+              Alert.alert('Success', `Added to ${playlistName}`);
+            }}
+          />
+        ) : null}
+      </ScrollView>
     </View>
   );
 }
@@ -173,6 +190,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.lg,
     justifyContent: 'center',
   },

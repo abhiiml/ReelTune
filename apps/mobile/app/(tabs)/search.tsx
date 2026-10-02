@@ -8,12 +8,16 @@ import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { useSearchSongs } from '../../hooks/useSearchSongs';
 import { useDebounce } from '../../hooks/useDebounce';
 import { SongRow } from '../../components/ui/SongRow';
+import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
+import { useToastStore } from '../../store/useToastStore';
 import type { Song } from '@reeltune/types';
 
 export default function SearchScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
+  const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
+  const { showToast } = useToastStore();
   const debouncedQuery = useDebounce(query, 300);
 
   const { data: songs, isLoading, isError, error } = useSearchSongs(debouncedQuery);
@@ -89,13 +93,23 @@ export default function SearchScreen() {
           <SongRow 
             song={item} 
             onPress={() => router.push(`/song/${item.id}` as never)}
-            onMenuPress={() => console.log('Open Song Menu', item.id)}
+            onMenuPress={() => setSelectedSongId(item.id)}
           />
         )}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmptyState()}
         keyboardShouldPersistTaps="handled"
         indicatorStyle="white"
+      />
+
+      <AddToPlaylistModal
+        visible={!!selectedSongId}
+        songId={selectedSongId}
+        onClose={() => setSelectedSongId(null)}
+        onSuccess={(playlistName) => {
+          showToast(`Added to ${playlistName}`, 'success');
+          setSelectedSongId(null);
+        }}
       />
     </View>
   );

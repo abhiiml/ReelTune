@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, Switch, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, Switch, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
 import { useCreatePlaylist } from '../../hooks/useCreatePlaylist';
+import { Button } from '../../components/ui/Button';
+import { useToastStore } from '../../store/useToastStore';
 
 export default function CreatePlaylistScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { showToast } = useToastStore();
   
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -27,9 +30,8 @@ export default function CreatePlaylistScreen() {
         isPrivate,
       },
       {
-        onSuccess: () => {
-          // If we had a playlist details screen built, we would go there.
-          // For now, just go back.
+        onSuccess: (newPlaylist) => {
+          showToast(`Created "${newPlaylist.name}" playlist!`, 'success');
           if (router.canGoBack()) {
             router.back();
           } else {
@@ -106,17 +108,12 @@ export default function CreatePlaylistScreen() {
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
-        <Pressable
-          style={[styles.createButton, !isFormValid && styles.createButtonDisabled]}
+        <Button
+          label="Create Playlist"
           onPress={handleCreate}
-          disabled={!isFormValid || isPending}
-        >
-          {isPending ? (
-            <ActivityIndicator color={Colors.bgPrimary} />
-          ) : (
-            <Text style={styles.createButtonText}>Create Playlist</Text>
-          )}
-        </Pressable>
+          isLoading={isPending}
+          disabled={!isFormValid}
+        />
       </View>
     </KeyboardAvoidingView>
   );

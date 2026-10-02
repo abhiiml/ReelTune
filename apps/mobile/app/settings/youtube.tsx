@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { Typography, Radius } from '../../constants/Theme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -12,6 +13,7 @@ import { API_URL } from '../../lib/api';
 export default function YouTubeConnectionScreen() {
   const { session } = useAuthStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const url = Linking.useURL();
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
@@ -102,7 +104,7 @@ export default function YouTubeConnectionScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 20) }]}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <ArrowLeft color={Colors.textPrimary} size={24} />

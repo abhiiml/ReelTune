@@ -22,6 +22,7 @@ import { useToastStore } from '../store/useToastStore';
 import { useDestinationStore } from '../store/useDestinationStore';
 import { extractAndNormalizeInstagramUrl } from '../lib/instagram';
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
 import { ToastManager } from '../components/ui/ToastManager';
 import { OfflineBanner } from '../components/ui/OfflineBanner';
@@ -138,21 +139,23 @@ function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <View style={{ flex: 1, backgroundColor: Colors.bgPrimary }}>
-        <StatusBar style="light" />
-        {isOffline && <OfflineBanner />}
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="share/reel" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="settings/destinations" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <ToastManager />
-      </View>
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <View style={{ flex: 1, backgroundColor: Colors.bgPrimary }}>
+          <StatusBar style="light" />
+          {isOffline && <OfflineBanner />}
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="share/reel" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="settings/destinations" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <ToastManager />
+        </View>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
 

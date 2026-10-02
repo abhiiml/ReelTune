@@ -1,13 +1,11 @@
 import { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, ScrollView, Pressable, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, ScrollView, Pressable, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
 import { Colors } from '../constants/Colors';
 import { Typography, Spacing, Radius } from '../constants/Theme';
 import { Search, Download, ListMusic, RefreshCw } from 'lucide-react-native';
-
-const { width } = Dimensions.get('window');
 
 const ONBOARDING_DATA = [
   {
@@ -36,10 +34,11 @@ export default function OnboardingScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width: slideWidth } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const slideSize = event.nativeEvent.layoutMeasurement.width || slideWidth;
     const index = event.nativeEvent.contentOffset.x / slideSize;
     const roundIndex = Math.round(index);
     if (roundIndex !== activeIndex) {
@@ -56,7 +55,7 @@ export default function OnboardingScreen() {
     if (activeIndex === ONBOARDING_DATA.length - 1) {
       completeOnboarding();
     } else {
-      scrollRef.current?.scrollTo({ x: (activeIndex + 1) * width, animated: true });
+      scrollRef.current?.scrollTo({ x: (activeIndex + 1) * slideWidth, animated: true });
     }
   };
 
@@ -83,7 +82,7 @@ export default function OnboardingScreen() {
         {ONBOARDING_DATA.map((item, index) => {
           const Icon = item.Icon;
           return (
-            <View key={index} style={styles.slide}>
+            <View key={index} style={[styles.slide, { width: slideWidth }]}>
               <View style={styles.iconContainer}>
                 <Icon size={80} color={Colors.accent} strokeWidth={1.5} />
               </View>
@@ -105,7 +104,12 @@ export default function OnboardingScreen() {
           ))}
         </View>
 
-        <Pressable style={styles.button} onPress={handleNext}>
+        <Pressable
+          style={styles.button}
+          onPress={handleNext}
+          accessibilityRole="button"
+          accessibilityLabel={activeIndex === ONBOARDING_DATA.length - 1 ? 'Get Started' : 'Next'}
+        >
           <Text style={styles.buttonText}>
             {activeIndex === ONBOARDING_DATA.length - 1 ? 'Get Started' : 'Next'}
           </Text>
@@ -138,7 +142,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   slide: {
-    width,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
@@ -147,7 +150,7 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: 'rgba(215, 122, 112, 0.1)',
+    backgroundColor: 'rgba(217, 154, 91, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing['3xl'],

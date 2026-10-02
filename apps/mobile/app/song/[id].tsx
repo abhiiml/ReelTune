@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, ActivityIndicator, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
@@ -9,14 +9,15 @@ import { useSaveSong } from '../../hooks/useSaveSong';
 import { AddToPlaylistModal } from '../../components/ui/AddToPlaylistModal';
 import { DuplicateSaveModal } from '../../components/ui/DuplicateSaveModal';
 import { useToastStore } from '../../store/useToastStore';
-import { Heart, ExternalLink, ChevronLeft } from 'lucide-react-native';
+import { Heart, ExternalLink, ChevronLeft, Music } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 
-function formatDuration(ms: number) {
+function formatDuration(ms?: number) {
+  if (!ms || isNaN(ms) || ms <= 0) return '0:00';
   const minutes = Math.floor(ms / 60000);
-  const seconds = ((ms % 60000) / 1000).toFixed(0);
-  return `${minutes}:${Number(seconds) < 10 ? '0' : ''}${seconds}`;
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 export default function SongDetailsScreen() {
@@ -131,13 +132,18 @@ export default function SongDetailsScreen() {
         <View style={{ width: 44 }} /> 
       </View>
 
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 24) + Spacing.xl }]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Artwork */}
         <View style={styles.artworkContainer}>
           {song.artwork ? (
             <Image source={{ uri: song.artwork }} style={styles.artwork} />
           ) : (
-            <View style={styles.placeholderArtwork} />
+            <View style={styles.placeholderArtwork}>
+              <Music size={56} color={Colors.textMuted} />
+            </View>
           )}
         </View>
 
@@ -156,12 +162,14 @@ export default function SongDetailsScreen() {
         {/* Actions */}
         <View style={styles.actionsContainer}>
           <Pressable 
-            style={({ pressed }) => [
+            style={({ pressed }) => StyleSheet.flatten([
               styles.actionButton, 
               isSavedLocal ? styles.secondaryAction : styles.primaryAction, 
               pressed && styles.pressed
-            ]} 
+            ])} 
             onPress={isSavedLocal ? () => setShowDuplicateModal(true) : handleSaveToggle}
+            accessibilityRole="button"
+            accessibilityLabel={isSavedLocal ? 'Saved in Library' : 'Save to Library'}
           >
             <Heart size={20} color={isSavedLocal ? Colors.accent : Colors.bgPrimary} fill={isSavedLocal ? Colors.accent : 'transparent'} />
             <Text style={isSavedLocal ? styles.secondaryActionText : styles.primaryActionText}>
@@ -170,29 +178,35 @@ export default function SongDetailsScreen() {
           </Pressable>
           
           <Pressable 
-            style={({ pressed }) => [styles.actionButton, styles.secondaryAction, pressed && styles.pressed]} 
+            style={({ pressed }) => StyleSheet.flatten([styles.actionButton, styles.secondaryAction, pressed && styles.pressed])} 
             onPress={() => setShowAddToPlaylist(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Add to Playlist"
           >
             <Text style={styles.secondaryActionText}>Add to Playlist...</Text>
           </Pressable>
           
           <Pressable 
-            style={({ pressed }) => [styles.actionButton, styles.secondaryAction, pressed && styles.pressed]} 
+            style={({ pressed }) => StyleSheet.flatten([styles.actionButton, styles.secondaryAction, pressed && styles.pressed])} 
             onPress={handlePlaySpotify}
+            accessibilityRole="button"
+            accessibilityLabel="Play on Spotify"
           >
             <ExternalLink size={20} color={Colors.spotify} />
             <Text style={[styles.secondaryActionText, { color: Colors.spotify }]}>Spotify</Text>
           </Pressable>
 
           <Pressable 
-            style={({ pressed }) => [styles.actionButton, styles.secondaryAction, pressed && styles.pressed]} 
+            style={({ pressed }) => StyleSheet.flatten([styles.actionButton, styles.secondaryAction, pressed && styles.pressed])} 
             onPress={handlePlayYouTube}
+            accessibilityRole="button"
+            accessibilityLabel="Play on YouTube"
           >
             <ExternalLink size={20} color={Colors.youtube} />
             <Text style={[styles.secondaryActionText, { color: Colors.youtube }]}>YouTube</Text>
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -225,7 +239,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: Spacing.lg,
     alignItems: 'center',
     paddingTop: Spacing.xl,
@@ -251,6 +265,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: Colors.cardElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   infoContainer: {
     width: '100%',

@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { View, Pressable, StyleSheet, type GestureResponderEvent } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, Search, PlusCircle, Library, User } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
 
@@ -17,6 +18,10 @@ function SaveTabButton({ onPress, children }: {
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 12);
+  const tabHeight = 56 + bottomPadding;
+
   return (
     <Tabs
       screenOptions={{
@@ -25,9 +30,9 @@ export default function TabsLayout() {
           backgroundColor: Colors.bgPrimary,
           borderTopColor: Colors.cardElevated,
           borderTopWidth: 1,
-          height: 84,
-          paddingBottom: 20,
-          paddingTop: 8,
+          height: tabHeight,
+          paddingBottom: bottomPadding,
+          paddingTop: 6,
         },
         tabBarActiveTintColor: Colors.accent,
         tabBarInactiveTintColor: Colors.textMuted,

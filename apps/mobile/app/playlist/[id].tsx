@@ -238,8 +238,8 @@ export default function PlaylistDetailsScreen() {
         }
         renderItem={({ item }) => (
           <SongRow 
-            song={item.song} 
-            onPress={() => router.push(`/song/${item.song.id}` as never)}
+            song={item.song || { title: 'Unknown Title', artists: ['Unknown Artist'] }} 
+            onPress={() => item.song?.id && router.push(`/song/${item.song.id}` as never)}
             onMenuPress={() => handleMenuPress(item)}
           />
         )}
@@ -257,8 +257,8 @@ export default function PlaylistDetailsScreen() {
           <View style={[styles.bottomSheet, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
             <View style={styles.sheetHeader}>
               <View>
-                <Text style={styles.sheetTitle} numberOfLines={1}>{selectedItem?.song?.title}</Text>
-                <Text style={styles.sheetSubtitle} numberOfLines={1}>{selectedItem?.song?.artists?.join(', ')}</Text>
+                <Text style={styles.sheetTitle} numberOfLines={1}>{selectedItem?.song?.title || 'Unknown Title'}</Text>
+                <Text style={styles.sheetSubtitle} numberOfLines={1}>{selectedItem?.song?.artists?.join(', ') || ''}</Text>
               </View>
               <Pressable onPress={() => setSelectedItem(null)} style={styles.closeBtn}>
                 <X size={24} color={Colors.textSecondary} />

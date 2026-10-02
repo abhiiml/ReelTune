@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   TextInput as RNTextInput,
@@ -42,6 +42,14 @@ export function TextInput({
       useNativeDriver: false,
     }).start();
   };
+
+  useEffect(() => {
+    if (value) {
+      animateLabel(1);
+    } else if (!isFocused) {
+      animateLabel(0);
+    }
+  }, [value, isFocused]);
 
   const handleFocus = (e: Parameters<NonNullable<RNTextInputProps['onFocus']>>[0]) => {
     setIsFocused(true);

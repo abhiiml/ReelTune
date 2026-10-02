@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { Typography, Radius } from '../../constants/Theme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -7,22 +8,22 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { API_URL } from '../../lib/api';
 
 export default function SpotifyConnectionScreen() {
   const { session } = useAuthStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const url = Linking.useURL();
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [connectedService, setConnectedService] = useState<{ providerAccountId: string } | null>(null);
 
-  
-
   const fetchIntegrations = async () => {
     if (!session?.access_token) return;
     try {
       setLoading(true);
-      const res = await fetch(`/integrations`, {
+      const res = await fetch(`${API_URL}/integrations`, {
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
       if (res.ok) {
@@ -58,7 +59,7 @@ export default function SpotifyConnectionScreen() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const connectUrl = `/integrations/spotify/connect`;
+      const connectUrl = `${API_URL}/integrations/spotify/connect`;
       const result = await WebBrowser.openAuthSessionAsync(
         connectUrl,
         Linking.createURL('settings/spotify')
@@ -82,7 +83,7 @@ export default function SpotifyConnectionScreen() {
     if (!session?.access_token) return;
     try {
       setLoading(true);
-      const res = await fetch(`/integrations/spotify`, {
+      const res = await fetch(`${API_URL}/integrations/spotify`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
@@ -101,7 +102,7 @@ export default function SpotifyConnectionScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 20) }]}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <ArrowLeft color={Colors.textPrimary} size={24} />

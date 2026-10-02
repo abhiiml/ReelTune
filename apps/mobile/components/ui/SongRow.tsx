@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import type { Song } from '@reeltune/types';
 import { Colors } from '../../constants/Colors';
 import { Typography, Spacing, Radius } from '../../constants/Theme';
-import { MoreVertical } from 'lucide-react-native';
+import { MoreVertical, Music } from 'lucide-react-native';
 
 interface SongRowProps {
   song: Song | Partial<Song>;
@@ -16,19 +16,25 @@ interface SongRowProps {
 export function SongRow({ song, onPress, onMenuPress, style }: SongRowProps) {
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) =>
+        StyleSheet.flatten([
+          styles.container,
+          pressed && styles.pressed,
+          style,
+        ])
+      }
       onPress={onPress}
       disabled={!onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${song.title || 'Unknown Title'} by ${Array.isArray(song.artists) ? song.artists.join(', ') : 'Unknown Artist'}`}
     >
       <View style={styles.artworkContainer}>
         {song.artwork ? (
           <Image source={{ uri: song.artwork }} style={styles.artwork} />
         ) : (
-          <View style={styles.placeholderArtwork} />
+          <View style={styles.placeholderArtwork}>
+            <Music size={24} color={Colors.textMuted} />
+          </View>
         )}
       </View>
       <View style={styles.details}>
@@ -41,7 +47,13 @@ export function SongRow({ song, onPress, onMenuPress, style }: SongRowProps) {
       </View>
       
       {onMenuPress && (
-        <Pressable style={styles.menuButton} onPress={onMenuPress} hitSlop={16}>
+        <Pressable
+          style={styles.menuButton}
+          onPress={onMenuPress}
+          hitSlop={16}
+          accessibilityRole="button"
+          accessibilityLabel="Song options"
+        >
           <MoreVertical size={20} color={Colors.textSecondary} />
         </Pressable>
       )}
@@ -76,6 +88,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: Colors.cardElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   details: {
     flex: 1,

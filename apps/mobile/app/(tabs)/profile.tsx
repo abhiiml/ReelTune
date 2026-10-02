@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { Typography, Radius, Spacing } from '../../constants/Theme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -15,6 +16,7 @@ import { API_URL } from '../../lib/api';
 export default function ProfileScreen() {
   const { session, signOut } = useAuthStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [profile, setProfile] = useState<{ displayName?: string; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -74,8 +76,14 @@ export default function ProfileScreen() {
   const isYoutubeConnected = integrations?.some(i => i.provider === 'youtube');
   const isAppleMusicConnected = integrations?.some(i => i.provider === 'apple-music');
 
+  const displayName =
+    profile?.displayName ||
+    (session?.user?.user_metadata?.name ? String(session.user.user_metadata.name) : null) ||
+    session?.user?.email?.split('@')[0] ||
+    'User';
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 20) }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.heading}>Profile</Text>
 
@@ -86,7 +94,7 @@ export default function ProfileScreen() {
             <View style={styles.avatar}>
                <UserIcon size={40} color={Colors.textSecondary} />
             </View>
-            <Text style={styles.name}>{profile?.displayName ?? 'User'}</Text>
+            <Text style={styles.name}>{displayName}</Text>
             <Text style={styles.email}>{session?.user?.email ?? profile?.email ?? ''}</Text>
             
             <View style={styles.statsRow}>

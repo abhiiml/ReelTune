@@ -31,6 +31,7 @@ export default function LibraryScreen() {
   const { showToast } = useToastStore();
   const [sortBy, setSortBy] = useState<'recent' | 'title' | 'artist'>('recent');
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
+  const [addToPlaylistSongId, setAddToPlaylistSongId] = useState<string | null>(null);
 
   // Playlists State
   const { data: playlistsData, isLoading: playlistsLoading, refetch: refetchPlaylists, isRefetching: isRefetchingPlaylists } = usePlaylists();
@@ -258,7 +259,17 @@ export default function LibraryScreen() {
             </View>
             
             <View style={styles.sheetActions}>
-              <Pressable style={styles.actionRow} onPress={() => setShowAddToPlaylist(true)}>
+              <Pressable
+                style={styles.actionRow}
+                onPress={() => {
+                  if (selectedSong?.id) {
+                    const songId = selectedSong.id;
+                    setSelectedSong(null);
+                    setAddToPlaylistSongId(songId);
+                    setShowAddToPlaylist(true);
+                  }
+                }}
+              >
                 <PlusCircle size={24} color={Colors.textPrimary} />
                 <Text style={styles.actionText}>Add to Playlist</Text>
               </Pressable>
@@ -285,14 +296,15 @@ export default function LibraryScreen() {
       {/* Add To Playlist Modal */}
       <AddToPlaylistModal
         visible={showAddToPlaylist}
-        songId={selectedSong?.id || null}
+        songId={addToPlaylistSongId}
         onClose={() => {
           setShowAddToPlaylist(false);
-          setSelectedSong(null);
+          setAddToPlaylistSongId(null);
         }}
         onSuccess={(playlistName) => {
           showToast(`Added to ${playlistName}`, 'success');
-          setSelectedSong(null);
+          setShowAddToPlaylist(false);
+          setAddToPlaylistSongId(null);
         }}
       />
     </View>

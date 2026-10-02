@@ -1,16 +1,26 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../constants/Colors';
 import { Typography, Radius, Spacing } from '../../constants/Theme';
-import { Music } from 'lucide-react-native';
+import { Music, ArrowLeft } from 'lucide-react-native';
 
 export default function JioSaavnSettings() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 20), paddingBottom: Math.max(insets.bottom, 20) }]}>
+      <View style={styles.topBar}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <ArrowLeft color={Colors.textPrimary} size={24} />
+        </TouchableOpacity>
+        <Text style={styles.topBarTitle}>JioSaavn</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
       <View style={styles.header}>
-        <Music size={64} color={Colors.jiosaavn} />
+        <Music size={56} color={Colors.jiosaavn} />
         <Text style={styles.title}>JioSaavn</Text>
         <Text style={styles.subtitle}>
           JioSaavn Integration Unavailable
@@ -41,11 +51,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
+  backBtn: {
+    padding: Spacing.xs,
+  },
+  topBarTitle: {
+    ...Typography.h3,
+    color: Colors.textPrimary,
   },
   header: {
     alignItems: 'center',
-    marginVertical: Spacing.xl,
+    marginVertical: Spacing.lg,
   },
   title: {
     ...Typography.h1,

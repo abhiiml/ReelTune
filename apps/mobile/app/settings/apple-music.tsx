@@ -1,13 +1,17 @@
-import { View, Text, StyleSheet, Pressable, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TextInput, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Colors } from '../../constants/Colors';
 import { Typography, Radius, Spacing } from '../../constants/Theme';
 import { useState, useEffect } from 'react';
-import { Music } from 'lucide-react-native';
+import { Music, ArrowLeft } from 'lucide-react-native';
 import { API_URL } from '../../lib/api';
 
 export default function AppleMusicSettings() {
   const { session } = useAuthStore();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   
   const [token, setToken] = useState('');
@@ -88,16 +92,24 @@ export default function AppleMusicSettings() {
 
   if (checking) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: Math.max(insets.top, 20) }]}>
         <ActivityIndicator color={Colors.appleMusic} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 20), paddingBottom: Math.max(insets.bottom, 20) }]}>
+      <View style={styles.topBar}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <ArrowLeft color={Colors.textPrimary} size={24} />
+        </TouchableOpacity>
+        <Text style={styles.topBarTitle}>Apple Music</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
       <View style={styles.header}>
-        <Music size={64} color={Colors.appleMusic} />
+        <Music size={56} color={Colors.appleMusic} />
         <Text style={styles.title}>Apple Music</Text>
         <Text style={styles.subtitle}>
           {isConnected 
@@ -143,11 +155,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
+  backBtn: {
+    padding: Spacing.xs,
+  },
+  topBarTitle: {
+    ...Typography.h3,
+    color: Colors.textPrimary,
   },
   header: {
     alignItems: 'center',
-    marginVertical: Spacing.xl,
+    marginVertical: Spacing.lg,
   },
   title: {
     ...Typography.h1,

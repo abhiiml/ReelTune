@@ -46,7 +46,11 @@ export default function HomeScreen() {
     return 'Good evening';
   };
 
-  const nameToDisplay = profile?.displayName?.split(' ')[0] || 'there';
+  const nameToDisplay =
+    profile?.displayName?.split(' ')[0] ||
+    (session?.user?.user_metadata?.name ? String(session.user.user_metadata.name).split(' ')[0] : null) ||
+    session?.user?.email?.split('@')[0] ||
+    'there';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -59,13 +63,23 @@ export default function HomeScreen() {
         </View>
 
         {/* Search Bar (Navigates) */}
-        <Pressable style={styles.searchBar} onPress={() => router.push('/search')}>
+        <Pressable
+          style={styles.searchBar}
+          onPress={() => router.push('/search')}
+          accessibilityRole="button"
+          accessibilityLabel="Search for a song or artist"
+        >
           <Search size={20} color={Colors.textSecondary} />
           <Text style={styles.searchText}>Search for a song or artist...</Text>
         </Pressable>
 
         {/* Hero Card */}
-        <Pressable style={styles.heroCard} onPress={() => router.push('/share/reel' as never)}>
+        <Pressable
+          style={styles.heroCard}
+          onPress={() => router.push('/share/reel' as never)}
+          accessibilityRole="button"
+          accessibilityLabel="One-Tap Reel Save"
+        >
           <View style={styles.heroContent}>
             <View style={styles.heroIconBadge}>
               <PlusCircle size={28} color={Colors.accent} />
@@ -139,7 +153,11 @@ export default function HomeScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
               {playlists.slice(0, 5).map((playlist) => (
                 <View key={playlist.id} style={styles.horizontalPlaylistCard}>
-                  <PlaylistCard playlist={playlist} onPress={() => router.push(`/playlist/${playlist.id}` as never)} />
+                  <PlaylistCard
+                    playlist={playlist}
+                    style={{ width: '100%' }}
+                    onPress={() => router.push(`/playlist/${playlist.id}` as never)}
+                  />
                 </View>
               ))}
             </ScrollView>
@@ -193,12 +211,12 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   heroCard: {
-    backgroundColor: 'rgba(215, 122, 112, 0.1)',
+    backgroundColor: 'rgba(217, 154, 91, 0.12)',
     borderRadius: Radius.card,
     padding: Spacing.lg,
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(215, 122, 112, 0.2)',
+    borderColor: 'rgba(217, 154, 91, 0.25)',
   },
   heroContent: {
     flexDirection: 'row',
@@ -209,7 +227,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(215, 122, 112, 0.2)',
+    backgroundColor: 'rgba(217, 154, 91, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -30,13 +30,17 @@ export function PlaylistCard({ playlist, onPress, style }: PlaylistCardProps) {
 
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) =>
+        StyleSheet.flatten([
+          styles.container,
+          style,
+          pressed && styles.pressed,
+        ])
+      }
       onPress={onPress}
       disabled={!onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Playlist ${playlist.name}`}
     >
       <View style={styles.artworkContainer}>
         <View style={styles.placeholderArtwork}>

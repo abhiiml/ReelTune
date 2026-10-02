@@ -53,7 +53,13 @@ export default function UserProfileScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          hitSlop={12}
+        >
           <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
       </View>
@@ -84,9 +90,15 @@ export default function UserProfileScreen() {
 
             {!isMe && (
               <Pressable 
-                style={[styles.followBtn, amIFollowing && styles.followingBtn]} 
+                style={({ pressed }) => StyleSheet.flatten([
+                  styles.followBtn,
+                  amIFollowing && styles.followingBtn,
+                  pressed && { opacity: 0.8 },
+                ])} 
                 onPress={handleFollowToggle}
                 disabled={isFollowing || isUnfollowing}
+                accessibilityRole="button"
+                accessibilityLabel={amIFollowing ? 'Unfollow user' : 'Follow user'}
               >
                 <Text style={[styles.followBtnText, amIFollowing && styles.followingBtnText]}>
                   {amIFollowing ? 'Following' : 'Follow'}

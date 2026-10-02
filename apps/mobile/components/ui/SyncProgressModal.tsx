@@ -25,7 +25,7 @@ export function SyncProgressModal({ jobId, onClose }: Props) {
         <View style={styles.container}>
           
           <View style={styles.header}>
-            <Text style={styles.title}>Spotify Sync</Text>
+            <Text style={styles.title}>Playlist Sync</Text>
             {(!isActive || isCompleted || isFailed) && (
               <Pressable onPress={onClose} style={styles.closeBtn}>
                 <X size={24} color={Colors.textSecondary} />
@@ -35,7 +35,7 @@ export function SyncProgressModal({ jobId, onClose }: Props) {
 
           {isActive && (
             <View style={styles.activeState}>
-              <ActivityIndicator size="large" color={Colors.spotify} />
+              <ActivityIndicator size="large" color={Colors.accent} />
               <Text style={styles.statusText}>
                 Syncing... {data?.progress || 0}%
               </Text>
@@ -66,7 +66,7 @@ export function SyncProgressModal({ jobId, onClose }: Props) {
                   onPress={() => Linking.openURL(data.result!.spotifyPlaylistUrl!)}
                 >
                   <ExternalLink size={20} color="#fff" />
-                  <Text style={styles.spotifyButtonText}>Open in Spotify</Text>
+                  <Text style={styles.spotifyButtonText}>Open Playlist</Text>
                 </Pressable>
               )}
             </View>

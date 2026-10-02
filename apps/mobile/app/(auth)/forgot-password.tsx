@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowLeft, MailCheck } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
@@ -15,6 +17,7 @@ import { Button } from '../../components/ui/Button';
 import { TextInput } from '../../components/ui/TextInput';
 
 export default function ForgotPasswordScreen() {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [sent, setSent] = useState(false);
@@ -48,7 +51,7 @@ export default function ForgotPasswordScreen() {
 
   if (sent) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <View style={styles.successContainer}>
           <View style={styles.successIcon}>
             <MailCheck size={32} color={Colors.accent} strokeWidth={1.5} />
@@ -71,43 +74,56 @@ export default function ForgotPasswordScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Back button */}
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <ArrowLeft size={22} color={Colors.textPrimary} strokeWidth={1.8} />
-      </Pressable>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Back button */}
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          hitSlop={12}
+        >
+          <ArrowLeft size={22} color={Colors.textPrimary} strokeWidth={1.8} />
+        </Pressable>
 
-      <View style={styles.content}>
-        <Text style={styles.heading}>Forgot password?</Text>
-        <Text style={styles.subheading}>
-          Enter your email and we'll send you a link to reset your password.
-        </Text>
+        <View style={styles.content}>
+          <Text style={styles.heading}>Forgot password?</Text>
+          <Text style={styles.subheading}>
+            Enter your email and we'll send you a link to reset your password.
+          </Text>
 
-        {error && (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{error}</Text>
-          </View>
-        )}
+          {error && (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{error}</Text>
+            </View>
+          )}
 
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={(t) => { setEmail(t); clearError(); }}
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          autoComplete="email"
-          error={emailError}
-          containerStyle={styles.inputGap}
-        />
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={(t) => { setEmail(t); clearError(); }}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            autoComplete="email"
+            error={emailError}
+            containerStyle={styles.inputGap}
+          />
 
-        <Button
-          label="Send Reset Email"
-          onPress={handleSend}
-          isLoading={isLoading}
-          style={styles.sendBtn}
-        />
-      </View>
+          <Button
+            label="Send Reset Email"
+            onPress={handleSend}
+            isLoading={isLoading}
+            disabled={!email.trim() || isLoading}
+            style={styles.sendBtn}
+          />
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -118,8 +134,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgPrimary,
     paddingHorizontal: 24,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   backButton: {
-    marginTop: 60,
+    marginTop: 8,
     width: 44,
     height: 44,
     borderRadius: 12,

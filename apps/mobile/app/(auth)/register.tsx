@@ -7,6 +7,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Colors } from '../../constants/Colors';
@@ -71,9 +72,16 @@ export default function RegisterScreen() {
     clearError();
 
     try {
-      await signUp(name.trim(), email.trim().toLowerCase(), password);
-      // Supabase signs them in automatically after registration
-      // onAuthStateChange in the store + _layout.tsx guard will redirect to /(tabs)
+      const result = await signUp(name.trim(), email.trim().toLowerCase(), password);
+      // If email verification is enabled and no session is returned immediately
+      if (result?.user && !result?.session) {
+        Alert.alert(
+          'Verification Email Sent',
+          'Please check your inbox and verify your email address before signing in.',
+          [{ text: 'Sign In', onPress: () => router.replace('/(auth)/login') }]
+        );
+      }
+      // If auto-confirmed, onAuthStateChange will trigger navigation
     } catch {
       // Error stored in useAuthStore
     }
@@ -82,7 +90,7 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
         style={{ flex: 1 }}
@@ -122,6 +130,7 @@ export default function RegisterScreen() {
             onChangeText={(t) => { setEmail(t); clearError(); }}
             keyboardType="email-address"
             textContentType="emailAddress"
+            autoCapitalize="none"
             autoComplete="email"
             error={emailError}
             containerStyle={styles.inputGap}
@@ -152,8 +161,8 @@ export default function RegisterScreen() {
             label="Create Account"
             onPress={handleRegister}
             isLoading={isLoading}
-            disabled={!name.trim() || !email.trim() || !password || !confirmPassword}
             style={styles.createBtn}
+            fullWidth
           />
 
           <Text style={styles.terms}>
@@ -183,18 +192,18 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 72,
-    paddingBottom: 120,
+    paddingTop: Platform.OS === 'android' ? 24 : 48,
+    paddingBottom: 40,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 20,
   },
   heading: {
     fontFamily: 'Manrope_700Bold',
     fontSize: 26,
     color: Colors.textPrimary,
     letterSpacing: -0.3,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subheading: {
     fontFamily: 'Manrope_400Regular',
@@ -217,12 +226,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_500Medium',
     fontSize: 13,
     color: Colors.error,
+    lineHeight: 18,
   },
   inputGap: {
     marginTop: 14,
   },
   createBtn: {
-    marginTop: 28,
+    marginTop: 24,
   },
   terms: {
     fontFamily: 'Manrope_400Regular',
@@ -238,7 +248,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 32,
+    marginTop: 28,
   },
   footerText: {
     fontFamily: 'Manrope_400Regular',
@@ -250,3 +260,4 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_600SemiBold',
   },
 });
+

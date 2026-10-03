@@ -20,32 +20,36 @@ export class AuthController {
       .getClient()
       .auth.signUp({ email, password });
 
+    const userId = authData?.user?.id;
+
     if (authError) {
-      throw new HttpException(authError.message, HttpStatus.BAD_REQUEST);
+      if (authError.message.toLowerCase().includes('already registered')) {
+        const existing = await this.prismaService.user.findUnique({ where: { email } });
+        if (existing) {
+          return { message: 'User already registered', user: existing };
+        }
+      } else {
+        throw new HttpException(authError.message, HttpStatus.BAD_REQUEST);
+      }
     }
 
-    if (!authData.user) {
-      throw new HttpException('Failed to create user in Supabase', HttpStatus.INTERNAL_SERVER_ERROR);
+    if (userId) {
+      await this.prismaService.user.upsert({
+        where: { id: userId },
+        create: {
+          id: userId,
+          email,
+          displayName: name,
+        },
+        update: {
+          displayName: name,
+        },
+      });
     }
-
-    const userId = authData.user.id;
-
-    // 2. Upsert user into PostgreSQL via Prisma
-    await this.prismaService.user.upsert({
-      where: { email },
-      create: {
-        id: userId,
-        email,
-        displayName: name,
-      },
-      update: {
-        displayName: name,
-      },
-    });
 
     return {
       message: 'User registered successfully',
-      user: authData.user,
+      user: authData?.user || { email },
     };
   }
 
@@ -61,6 +65,29 @@ export class AuthController {
       throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
     }
 
+    // Auto-sync profile on login if user ID is present
+    if (data.user?.id) {
+      const existing = await this.prismaService.user.findUnique({ where: { id: data.user.id } });
+      if (!existing) {
+        const userEmail = data.user.email || email;
+        const displayName =
+          data.user.user_metadata?.full_name ||
+          data.user.user_metadata?.name ||
+          userEmail.split('@')[0];
+        try {
+          await this.prismaService.user.create({
+            data: {
+              id: data.user.id,
+              email: userEmail,
+              displayName,
+            },
+          });
+        } catch {
+          // Non-fatal
+        }
+      }
+    }
+
     return {
       accessToken: data.session?.access_token,
       refreshToken: data.session?.refresh_token,
@@ -69,12 +96,33 @@ export class AuthController {
 
   @UseGuards(SupabaseAuthGuard)
   @Get('me')
-  async getMe(@Req() req: { user: { id: string } }) {
+  async getMe(@Req() req: { user: { id: string; email?: string; user_metadata?: { full_name?: string; name?: string } } }) {
     const supabaseUser = req.user;
 
-    const user = await this.prismaService.user.findUnique({
+    let user = await this.prismaService.user.findUnique({
       where: { id: supabaseUser.id },
     });
+
+    if (!user) {
+      const email = supabaseUser.email || `${supabaseUser.id}@reeltune.user`;
+      const displayName =
+        supabaseUser.user_metadata?.full_name ||
+        supabaseUser.user_metadata?.name ||
+        email.split('@')[0] ||
+        'ReelTune User';
+
+      try {
+        user = await this.prismaService.user.create({
+          data: {
+            id: supabaseUser.id,
+            email,
+            displayName,
+          },
+        });
+      } catch {
+        user = await this.prismaService.user.findUnique({ where: { id: supabaseUser.id } });
+      }
+    }
 
     if (!user) {
       throw new HttpException('User profile not found', HttpStatus.NOT_FOUND);

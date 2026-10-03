@@ -7,7 +7,6 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Music2 } from 'lucide-react-native';
@@ -15,6 +14,7 @@ import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Button } from '../../components/ui/Button';
 import { TextInput } from '../../components/ui/TextInput';
+import { GoogleIcon } from '../../components/ui/GoogleIcon';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -22,7 +22,7 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  const { signIn, isLoading, error, clearError } = useAuthStore();
+  const { signIn, signInWithGoogle, isLoading, error, clearError } = useAuthStore();
 
   const validate = () => {
     let valid = true;
@@ -51,25 +51,24 @@ export default function LoginScreen() {
 
     try {
       await signIn(email.trim().toLowerCase(), password);
-      // onAuthStateChange in the store will update session
-      // _layout.tsx redirect guard will send user to /(tabs)
     } catch {
-      // Error is already stored in useAuthStore; show inline
+      // Error is stored in useAuthStore and displayed in errorBanner
     }
   };
 
-  const handleGoogleSignIn = () => {
-    Alert.alert(
-      'Coming Soon',
-      'Google Sign-In will be available in an upcoming update.',
-      [{ text: 'OK' }]
-    );
+  const handleGoogleSignIn = async () => {
+    clearError();
+    try {
+      await signInWithGoogle();
+    } catch {
+      // Handled in store
+    }
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
         style={{ flex: 1 }}
@@ -103,6 +102,7 @@ export default function LoginScreen() {
             onChangeText={(t) => { setEmail(t); clearError(); }}
             keyboardType="email-address"
             textContentType="emailAddress"
+            autoCapitalize="none"
             autoComplete="email"
             error={emailError}
           />
@@ -122,6 +122,7 @@ export default function LoginScreen() {
           <Pressable
             onPress={() => router.push('/(auth)/forgot-password')}
             style={styles.forgotLink}
+            hitSlop={8}
           >
             <Text style={styles.linkText}>Forgot password?</Text>
           </Pressable>
@@ -131,8 +132,8 @@ export default function LoginScreen() {
             label="Sign In"
             onPress={handleSignIn}
             isLoading={isLoading}
-            disabled={!email.trim() || !password}
             style={styles.primaryBtn}
+            fullWidth
           />
 
           {/* Divider */}
@@ -147,9 +148,9 @@ export default function LoginScreen() {
             label="Continue with Google"
             variant="outline"
             onPress={handleGoogleSignIn}
-            leftIcon={
-              <Text style={styles.googleIcon}>G</Text>
-            }
+            isLoading={isLoading}
+            leftIcon={<GoogleIcon size={18} />}
+            fullWidth
           />
         </View>
 
@@ -172,20 +173,20 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingBottom: 120,
+    paddingTop: Platform.OS === 'android' ? 24 : 48,
+    paddingBottom: 40,
     justifyContent: 'center',
-    gap: 0,
   },
   logoContainer: {
     alignItems: 'center',
-    paddingTop: 72,
-    paddingBottom: 48,
-    gap: 10,
+    paddingTop: 12,
+    paddingBottom: 24,
+    gap: 8,
   },
   logoIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     backgroundColor: Colors.cardElevated,
     alignItems: 'center',
     justifyContent: 'center',
@@ -194,13 +195,13 @@ const styles = StyleSheet.create({
   },
   wordmark: {
     fontFamily: 'Manrope_800ExtraBold',
-    fontSize: 28,
+    fontSize: 26,
     color: Colors.textPrimary,
     letterSpacing: -0.5,
   },
   tagline: {
     fontFamily: 'Manrope_400Regular',
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.textSecondary,
   },
   form: {
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_700Bold',
     fontSize: 22,
     color: Colors.textPrimary,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   errorBanner: {
     backgroundColor: '#3D1A18',
@@ -224,6 +225,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_500Medium',
     fontSize: 13,
     color: Colors.error,
+    lineHeight: 18,
   },
   inputGap: {
     marginTop: 14,
@@ -231,7 +233,7 @@ const styles = StyleSheet.create({
   forgotLink: {
     alignSelf: 'flex-end',
     marginTop: 10,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   linkText: {
     fontFamily: 'Manrope_500Medium',
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginVertical: 20,
+    marginVertical: 18,
   },
   dividerLine: {
     flex: 1,
@@ -257,15 +259,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textMuted,
   },
-  googleIcon: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 16,
-    color: Colors.textPrimary,
-  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 32,
+    marginTop: 28,
   },
   footerText: {
     fontFamily: 'Manrope_400Regular',
@@ -277,3 +274,4 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_600SemiBold',
   },
 });
+

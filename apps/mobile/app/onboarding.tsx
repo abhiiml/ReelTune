@@ -39,8 +39,12 @@ export default function OnboardingScreen() {
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width || slideWidth;
+    if (slideSize <= 0) return;
     const index = event.nativeEvent.contentOffset.x / slideSize;
-    const roundIndex = Math.round(index);
+    const roundIndex = Math.min(
+      Math.max(0, Math.round(index)),
+      ONBOARDING_DATA.length - 1,
+    );
     if (roundIndex !== activeIndex) {
       setActiveIndex(roundIndex);
     }
@@ -77,6 +81,11 @@ export default function OnboardingScreen() {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        snapToInterval={slideWidth}
+        snapToAlignment="center"
+        decelerationRate="fast"
         style={styles.scrollView}
       >
         {ONBOARDING_DATA.map((item, index) => {
@@ -142,9 +151,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   slide: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
+    overflow: 'hidden',
   },
   iconContainer: {
     width: 160,

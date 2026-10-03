@@ -12,8 +12,18 @@ export class RecognitionController {
     if (!body.audioUrl) {
       throw new BadRequestException('audioUrl is required');
     }
-    
-    return this.recognitionService.recognizeAudio(body.audioUrl);
+
+    try {
+      const result = await this.recognitionService.recognizeAudio(body.audioUrl);
+      return { success: true, ...result };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Audio recognition failed';
+      return {
+        success: false,
+        message,
+        candidates: [],
+      };
+    }
   }
 
   @Post('instagram')
@@ -23,6 +33,15 @@ export class RecognitionController {
       throw new BadRequestException('reelUrl is required');
     }
 
-    return this.recognitionService.recognizeFromReel(body.reelUrl);
+    try {
+      return await this.recognitionService.recognizeFromReel(body.reelUrl);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Reel recognition failed';
+      return {
+        success: false,
+        message,
+        candidates: [],
+      };
+    }
   }
 }

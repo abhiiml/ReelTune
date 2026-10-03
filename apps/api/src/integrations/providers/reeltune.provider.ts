@@ -19,7 +19,24 @@ export class ReelTuneProvider implements MusicProvider {
     return true;
   }
 
+  private async ensureUserExists(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      await this.prisma.user
+        .create({
+          data: {
+            id: userId,
+            email: `${userId}@reeltune.user`,
+            displayName: 'ReelTune User',
+          },
+        })
+        .catch(() => {});
+    }
+  }
+
   async getPlaylists(userId: string): Promise<DestinationPlaylist[]> {
+    await this.ensureUserExists(userId);
+
     const playlists = await this.prisma.playlist.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
@@ -66,6 +83,7 @@ export class ReelTuneProvider implements MusicProvider {
     playlistId: string | null,
     song: Song,
   ): Promise<AddTrackResult> {
+    await this.ensureUserExists(userId);
     let targetPlaylistId = playlistId;
     let targetPlaylistName = 'Reels Finds';
 

@@ -82,6 +82,20 @@ export class SongsService {
     };
   }
   async saveSong(userId: string, songId: string) {
+    // Ensure user row exists in DB
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      await this.prisma.user
+        .create({
+          data: {
+            id: userId,
+            email: `${userId}@reeltune.user`,
+            displayName: 'ReelTune User',
+          },
+        })
+        .catch(() => {});
+    }
+
     // Check if it's already saved
     const existing = await this.prisma.savedSong.findUnique({
       where: {

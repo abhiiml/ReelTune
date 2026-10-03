@@ -80,10 +80,14 @@ export class ShareService {
       !recognitionResult.artist
     ) {
       this.logger.warn(`Song recognition failed for Reel: ${cleanUrl}`);
+      const failureMessage =
+        ('message' in recognitionResult && typeof recognitionResult.message === 'string' && recognitionResult.message)
+          ? recognitionResult.message
+          : "We couldn't identify the song from this Reel.";
       return {
         success: false,
         status: 'RECOGNITION_FAILED',
-        message: "We couldn't identify the song from this Reel.",
+        message: failureMessage,
         actions: ['SEARCH_MANUALLY', 'TRY_AGAIN'],
       };
     }

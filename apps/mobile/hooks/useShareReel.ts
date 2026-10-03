@@ -14,6 +14,7 @@ export interface ShareReelResponse {
     | 'ALREADY_EXISTS'
     | 'RECOGNITION_FAILED'
     | 'INVALID_URL'
+    | 'REEL_UNAVAILABLE'
     | 'MATCH_FAILED'
     | 'PROVIDER_NOT_CONNECTED'
     | 'PLAYLIST_NOT_FOUND';

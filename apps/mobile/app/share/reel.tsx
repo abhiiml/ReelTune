@@ -224,6 +224,10 @@ export default function ShareReelScreen() {
             <Text style={styles.errorTitle}>
               {result.status === 'PROVIDER_NOT_CONNECTED'
                 ? 'Provider Not Connected'
+                : result.status === 'INVALID_URL'
+                ? 'Invalid Reel Link'
+                : result.status === 'REEL_UNAVAILABLE'
+                ? 'Reel Unavailable'
                 : 'Identification Unavailable'}
             </Text>
             <Text style={styles.errorSubtitle}>{result.message}</Text>

@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { Session, User } from '@supabase/supabase-js';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '../lib/supabase';
 import { API_URL } from '../lib/api';
+
+WebBrowser.maybeCompleteAuthSession();
 
 interface AuthState {
   session: Session | null;
@@ -12,7 +16,8 @@ interface AuthState {
   // Actions
   initialize: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signUp: (name: string, email: string, password: string) => Promise<{ user: User | null; session: Session | null }>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   clearError: () => void;
@@ -43,11 +48,73 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      set({ isLoading: false, error: error.message });
-      throw error;
+      const msg =
+        error.message === 'Invalid login credentials'
+          ? 'Invalid email or password. If you just created an account, please check your inbox to verify your email.'
+          : error.message;
+      set({ isLoading: false, error: msg });
+      throw new Error(msg);
     }
     // onAuthStateChange will update session/user automatically
     set({ isLoading: false });
+  },
+
+  signInWithGoogle: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const redirectUrl = Linking.createURL('auth-callback');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: true,
+        },
+      });
+
+      if (error) {
+        set({ isLoading: false, error: error.message });
+        throw error;
+      }
+
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+        if (result.type === 'success' && result.url) {
+          const urlStr = result.url;
+          let code: string | null = null;
+          let accessToken: string | null = null;
+          let refreshToken: string | null = null;
+
+          if (urlStr.includes('code=')) {
+            const match = urlStr.match(/[?&]code=([^&]+)/);
+            if (match) code = decodeURIComponent(match[1]);
+          }
+          if (urlStr.includes('access_token=')) {
+            const match = urlStr.match(/[#&]access_token=([^&]+)/);
+            if (match) accessToken = decodeURIComponent(match[1]);
+          }
+          if (urlStr.includes('refresh_token=')) {
+            const match = urlStr.match(/[#&]refresh_token=([^&]+)/);
+            if (match) refreshToken = decodeURIComponent(match[1]);
+          }
+
+          if (code) {
+            const { error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
+            if (exchangeErr) throw exchangeErr;
+          } else if (accessToken && refreshToken) {
+            const { error: sessErr } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (sessErr) throw sessErr;
+          }
+        }
+      }
+      set({ isLoading: false });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Google sign-in was cancelled or failed';
+      set({ isLoading: false, error: msg });
+      throw err;
+    }
   },
 
   signUp: async (name, email, password) => {
@@ -72,14 +139,13 @@ export const useAuthStore = create<AuthState>((set) => ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, name }),
         });
-        // Note: register may return 400 if already registered — that's fine
-        // The user already exists in Supabase; this just ensures the DB row
       } catch {
-        // Non-fatal: Supabase user was created, DB row will be created on next login via /me
+        // Non-fatal: user will be synced on first authenticated request
       }
     }
 
     set({ isLoading: false });
+    return { user: data.user, session: data.session };
   },
 
   signOut: async () => {
@@ -102,3 +168,4 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   clearError: () => set({ error: null }),
 }));
+

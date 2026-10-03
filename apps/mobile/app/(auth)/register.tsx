@@ -6,13 +6,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
   Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/useAuthStore';
-import { Button } from '../../components/ui/Button';
 import { TextInput } from '../../components/ui/TextInput';
 
 export default function RegisterScreen() {
@@ -73,7 +74,6 @@ export default function RegisterScreen() {
 
     try {
       const result = await signUp(name.trim(), email.trim().toLowerCase(), password);
-      // If email verification is enabled and no session is returned immediately
       if (result?.user && !result?.session) {
         Alert.alert(
           'Verification Email Sent',
@@ -81,9 +81,8 @@ export default function RegisterScreen() {
           [{ text: 'Sign In', onPress: () => router.replace('/(auth)/login') }]
         );
       }
-      // If auto-confirmed, onAuthStateChange will trigger navigation
     } catch {
-      // Error stored in useAuthStore
+      // Error stored in useAuthStore and displayed in errorBanner
     }
   };
 
@@ -157,13 +156,21 @@ export default function RegisterScreen() {
             containerStyle={styles.inputGap}
           />
 
-          <Button
-            label="Create Account"
+          {/* Prominent Create Account Button */}
+          <TouchableOpacity
+            style={[styles.createBtn, isLoading && styles.btnDisabled]}
             onPress={handleRegister}
-            isLoading={isLoading}
-            style={styles.createBtn}
-            fullWidth
-          />
+            disabled={isLoading}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Create Account"
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#080706" />
+            ) : (
+              <Text style={styles.createBtnText}>Create Account</Text>
+            )}
+          </TouchableOpacity>
 
           <Text style={styles.terms}>
             By creating an account, you agree to our{' '}
@@ -232,7 +239,21 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   createBtn: {
+    backgroundColor: Colors.accent,
+    borderRadius: 14,
+    height: 54,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 24,
+  },
+  createBtnText: {
+    fontFamily: 'Manrope_700Bold',
+    fontSize: 16,
+    color: '#080706',
+  },
+  btnDisabled: {
+    opacity: 0.5,
   },
   terms: {
     fontFamily: 'Manrope_400Regular',
@@ -260,4 +281,3 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_600SemiBold',
   },
 });
-

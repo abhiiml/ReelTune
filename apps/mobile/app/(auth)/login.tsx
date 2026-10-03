@@ -6,13 +6,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Music2 } from 'lucide-react-native';
 import { Colors } from '../../constants/Colors';
 import { useAuthStore } from '../../store/useAuthStore';
-import { Button } from '../../components/ui/Button';
 import { TextInput } from '../../components/ui/TextInput';
 import { GoogleIcon } from '../../components/ui/GoogleIcon';
 
@@ -118,23 +119,30 @@ export default function LoginScreen() {
             containerStyle={styles.inputGap}
           />
 
-          {/* Forgot password */}
+          {/* Prominent Sign In button directly below Password */}
+          <TouchableOpacity
+            style={[styles.primaryBtn, isLoading && styles.btnDisabled]}
+            onPress={handleSignIn}
+            disabled={isLoading}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Sign In"
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#080706" />
+            ) : (
+              <Text style={styles.primaryBtnText}>Sign In</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Forgot password link below Sign In */}
           <Pressable
             onPress={() => router.push('/(auth)/forgot-password')}
             style={styles.forgotLink}
-            hitSlop={8}
+            hitSlop={10}
           >
             <Text style={styles.linkText}>Forgot password?</Text>
           </Pressable>
-
-          {/* Sign in button */}
-          <Button
-            label="Sign In"
-            onPress={handleSignIn}
-            isLoading={isLoading}
-            style={styles.primaryBtn}
-            fullWidth
-          />
 
           {/* Divider */}
           <View style={styles.divider}>
@@ -144,14 +152,17 @@ export default function LoginScreen() {
           </View>
 
           {/* Google sign-in */}
-          <Button
-            label="Continue with Google"
-            variant="outline"
+          <TouchableOpacity
+            style={[styles.googleBtn, isLoading && styles.btnDisabled]}
             onPress={handleGoogleSignIn}
-            isLoading={isLoading}
-            leftIcon={<GoogleIcon size={18} />}
-            fullWidth
-          />
+            disabled={isLoading}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Continue with Google"
+          >
+            <GoogleIcon size={18} />
+            <Text style={styles.googleBtnText}>Continue with Google</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
@@ -175,7 +186,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: Platform.OS === 'android' ? 24 : 48,
     paddingBottom: 40,
-    justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
@@ -230,18 +240,33 @@ const styles = StyleSheet.create({
   inputGap: {
     marginTop: 14,
   },
+  primaryBtn: {
+    backgroundColor: Colors.accent,
+    borderRadius: 14,
+    height: 54,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 22,
+  },
+  primaryBtnText: {
+    fontFamily: 'Manrope_700Bold',
+    fontSize: 16,
+    color: '#080706',
+  },
+  btnDisabled: {
+    opacity: 0.5,
+  },
   forgotLink: {
-    alignSelf: 'flex-end',
-    marginTop: 10,
-    marginBottom: 20,
+    alignSelf: 'center',
+    marginTop: 16,
+    marginBottom: 10,
+    paddingVertical: 4,
   },
   linkText: {
     fontFamily: 'Manrope_500Medium',
     fontSize: 13,
     color: Colors.accent,
-  },
-  primaryBtn: {
-    marginBottom: 0,
   },
   divider: {
     flexDirection: 'row',
@@ -259,10 +284,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textMuted,
   },
+  googleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    borderRadius: 14,
+    height: 54,
+    width: '100%',
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: Colors.cardElevated,
+  },
+  googleBtnText: {
+    fontFamily: 'Manrope_600SemiBold',
+    fontSize: 15,
+    color: Colors.textPrimary,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 28,
+    marginTop: 32,
   },
   footerText: {
     fontFamily: 'Manrope_400Regular',
@@ -274,4 +316,3 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_600SemiBold',
   },
 });
-

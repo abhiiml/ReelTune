@@ -1,10 +1,10 @@
 import React from 'react';
 import {
-  Pressable,
+  TouchableOpacity,
   Text,
   ActivityIndicator,
   StyleSheet,
-  type PressableProps,
+  type TouchableOpacityProps,
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
@@ -13,7 +13,7 @@ import { Colors } from '../../constants/Colors';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 
-interface ButtonProps extends PressableProps {
+export interface ButtonProps extends TouchableOpacityProps {
   label: string;
   variant?: ButtonVariant;
   isLoading?: boolean;
@@ -37,26 +37,26 @@ export function Button({
 }: ButtonProps) {
   const isDisabled = disabled || isLoading;
 
-  const handlePress = (e: Parameters<NonNullable<PressableProps['onPress']>>[0]) => {
+  const handlePress = (e: Parameters<NonNullable<TouchableOpacityProps['onPress']>>[0]) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onPress?.(e);
   };
 
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={handlePress}
       disabled={isDisabled}
+      activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: isLoading }}
       accessibilityLabel={rest.accessibilityLabel || label}
-      style={({ pressed }) => StyleSheet.flatten([
+      style={[
         styles.base,
         styles[variant],
         fullWidth && styles.fullWidth,
-        pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
-      ])}
+      ]}
       {...rest}
     >
       {isLoading ? (
@@ -72,7 +72,7 @@ export function Button({
           </Text>
         </>
       )}
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   },
   outline: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.cardElevated,
   },
   ghost: {
@@ -109,11 +109,11 @@ const styles = StyleSheet.create({
 
   // Label variants
   label: {
-    fontFamily: 'Manrope_600SemiBold',
-    fontSize: 15,
+    fontFamily: 'Manrope_700Bold',
+    fontSize: 16,
   },
   primaryLabel: {
-    color: Colors.bgPrimary,
+    color: '#080706',
   },
   secondaryLabel: {
     color: Colors.textPrimary,
@@ -126,11 +126,7 @@ const styles = StyleSheet.create({
   },
 
   // States
-  pressed: {
-    opacity: 0.82,
-    transform: [{ scale: 0.985 }],
-  },
   disabled: {
-    opacity: 0.4,
+    opacity: 0.5,
   },
 });

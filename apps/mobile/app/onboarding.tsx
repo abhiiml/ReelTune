@@ -1,5 +1,14 @@
 import { useState, useRef } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, ScrollView, Pressable, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  ScrollView,
+  TouchableOpacity,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
@@ -37,17 +46,19 @@ export default function OnboardingScreen() {
   const { width: slideWidth } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
 
+  const updateIndex = (offsetX: number) => {
+    if (slideWidth <= 0) return;
+    const rawIndex = Math.round(offsetX / slideWidth);
+    const clampedIndex = Math.min(Math.max(0, rawIndex), ONBOARDING_DATA.length - 1);
+    setActiveIndex(clampedIndex);
+  };
+
+  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    updateIndex(event.nativeEvent.contentOffset.x);
+  };
+
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const slideSize = event.nativeEvent.layoutMeasurement.width || slideWidth;
-    if (slideSize <= 0) return;
-    const index = event.nativeEvent.contentOffset.x / slideSize;
-    const roundIndex = Math.min(
-      Math.max(0, Math.round(index)),
-      ONBOARDING_DATA.length - 1,
-    );
-    if (roundIndex !== activeIndex) {
-      setActiveIndex(roundIndex);
-    }
+    updateIndex(event.nativeEvent.contentOffset.x);
   };
 
   const completeOnboarding = async () => {
@@ -59,19 +70,20 @@ export default function OnboardingScreen() {
     if (activeIndex === ONBOARDING_DATA.length - 1) {
       completeOnboarding();
     } else {
-      scrollRef.current?.scrollTo({ x: (activeIndex + 1) * slideWidth, animated: true });
+      const nextIndex = activeIndex + 1;
+      scrollRef.current?.scrollTo({ x: nextIndex * slideWidth, animated: true });
+      setActiveIndex(nextIndex);
     }
   };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      
       {/* Top Bar */}
       <View style={styles.topBar}>
         <View />
-        <Pressable onPress={completeOnboarding} style={styles.skipBtn}>
+        <TouchableOpacity onPress={completeOnboarding} style={styles.skipBtn} hitSlop={12}>
           <Text style={styles.skipText}>Skip</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
 
       {/* Carousel */}
@@ -80,13 +92,12 @@ export default function OnboardingScreen() {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        snapToInterval={slideWidth}
-        snapToAlignment="center"
         decelerationRate="fast"
         style={styles.scrollView}
+        contentContainerStyle={{ alignItems: 'center' }}
       >
         {ONBOARDING_DATA.map((item, index) => {
           const Icon = item.Icon;
@@ -106,23 +117,24 @@ export default function OnboardingScreen() {
       <View style={styles.footer}>
         <View style={styles.pagination}>
           {ONBOARDING_DATA.map((_, i) => (
-            <View 
-              key={i} 
-              style={[styles.dot, activeIndex === i && styles.activeDot]} 
+            <View
+              key={i}
+              style={[styles.dot, activeIndex === i && styles.activeDot]}
             />
           ))}
         </View>
 
-        <Pressable
+        <TouchableOpacity
           style={styles.button}
           onPress={handleNext}
+          activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel={activeIndex === ONBOARDING_DATA.length - 1 ? 'Get Started' : 'Next'}
         >
           <Text style={styles.buttonText}>
             {activeIndex === ONBOARDING_DATA.length - 1 ? 'Get Started' : 'Next'}
           </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -151,7 +163,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   slide: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
@@ -205,9 +216,12 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderRadius: Radius.btn,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 52,
   },
   buttonText: {
     ...Typography.h3,
-    color: '#fff',
+    color: '#080706',
+    fontFamily: 'Manrope_700Bold',
   },
 });
